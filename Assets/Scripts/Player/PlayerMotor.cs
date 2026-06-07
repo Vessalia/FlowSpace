@@ -7,138 +7,120 @@ namespace Assets.Scripts.Player
 	[Serializable]
 	public class PlayerMotor
 	{
-		[Header("Jump Parameters")]
-		[Range(1, 50)]
-		public float maxJumpHeight = 10; // how many world units high we can jump
+		[Header("Dash Parameters")]
 
 		[Range(1f, 100f)]
-		public float maxJumpDistance = 10f; // horizontal distance traveled until jump peak
+		public float dashDistance = 10f; // distance traveled until end of dash
+		public float dashDuration = 0.2f;
 
-		[Range(0.01f, 1f)]
-		public float timeToMaxSpeedGround = 0.1f; // how long does it take to reach max speed
+		public float InitialDashVelocity => (2.0f * dashDistance) / dashDuration; // constant decceleration
 
-		public float Acceleration => MovementSpeed / timeToMaxSpeedGround;
-
-		public float TimeToJumpPeak => maxJumpDistance / (MovementSpeed * (1f + 1f / Mathf.Sqrt(fallGravityScalar)));
-		public float Gravity => (-2.0f * maxJumpHeight) / (TimeToJumpPeak * TimeToJumpPeak);
-		public float InitialJumpVelocity => (2.0f * maxJumpHeight) / TimeToJumpPeak;
+		private bool isDashing = false;
+		private float dashTimer = 0;
+		private Vector2 dashDir = Vector2.zero;
 
 		[Header("Movement")]
-		public float MovementSpeed = 6f;
-		public float RotationSpeed = 720f;
+		public float FlightSpeed = 6f;
+		public float ReticleSpeed = 10f;
 
-		public float WalkSpeed => MovementSpeed / 2f;
+		[Range(0.01f, 1f)]
+		public float timeToMaxSpeed = 0.1f; // how long does it take to reach max speed
+		public float Acceleration => FlightSpeed / timeToMaxSpeed;
 
-		[SerializeField]
-		[Range(0.5f, 10f)]
-		public float fallGravityScalar = 1f;  // how intense we want gravity to scale once we are past the peak of the jump
-		public float FallGravity => Gravity * fallGravityScalar;
+		private Vector2 planeVelocity;
 
-		[SerializeField]
-		public Transform cameraTransform;
+		private Vector3 prevTrackPoint = Vector3.zero;
 
-		private Vector3 velocity;
-
-		public bool IsGrounded { get; private set; }
-
-		public void Tick(PlayerIntent intent, CharacterController cc, Animator animator)
+		public void Tick(float dt, PlayerIntent intent, CharacterController cc, Animator animator, Vector3 trackPoint, Vector3 forward, Vector3 up)
 		{
 			Vector2 moveInput = intent.Move;
-			bool jumpPressed = intent.Jump;
 
-			Vector3 moveDir = CalculateMoveDirection(moveInput);
-			ResolveVerticalVelocity(jumpPressed, intent);
-
-			Vector2 velocityXZ = velocity.xz();
-			velocityXZ = ResolveHorizontalVelocity(intent.RunHeld, moveDir, moveInput, velocityXZ);
-			ResolveRotation(moveDir, cc.transform);
-
-			velocity = new Vector3(velocityXZ.x, velocity.y, velocityXZ.y);
-			IsGrounded = cc.isGrounded;
-
-			UpdateAnimator(animator, intent.RunHeld, intent.LanternRaised);
-			cc.Move(velocity * Time.deltaTime);
-		}
-
-		private void UpdateAnimator(Animator animator, bool isRunning, bool lanternRaised)
-		{
-			animator.SetFloat("Speed", velocity.xz().magnitude);
-			animator.SetBool("IsRunning", isRunning);
-
-			int lanternLayer = animator.GetLayerIndex("Lantern");
-			animator.SetBool("IsLanternRaised", lanternRaised);
-		}
-
-		private Vector3 CalculateMoveDirection(Vector2 moveInput)
-		{
-			Vector3 input = new Vector3(moveInput.x, 0f, moveInput.y);
-			if (input.sqrMagnitude <= 0.001f)
-				return Vector3.zero;
-
-			float yaw = cameraTransform.eulerAngles.y;
-			Quaternion planeRotation = Quaternion.Euler(0f, yaw, 0f);
-
-			Vector3 camForward = planeRotation * Vector3.forward;
-			Vector3 camRight = planeRotation * Vector3.right;
-
-			Vector3 moveDir = camForward * input.z + camRight * input.x;
-			moveDir.Normalize();
-			return moveDir;
-		}
-
-		private void ResolveRotation(Vector3 moveDir, Transform transform)
-		{
-			float effectiveRotationSpeed = RotationSpeed;
-
-			if (moveDir.sqrMagnitude > 0.001f)
+			if (!isDashing && intent.Dash)
 			{
-				transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(moveDir), effectiveRotationSpeed * Time.deltaTime);
-			}
-		}
-
-		private void ResolveVerticalVelocity(bool jumpPressed, PlayerIntent intent)
-		{
-			if (jumpPressed && (IsGrounded || intent.CanUseCoyote))
-			{
-				velocity.y = InitialJumpVelocity;
-				return;
+				isDashing = true;
+				StartDash(moveInput);
 			}
 
-			if (IsGrounded)
+			ConstrainPosition(trackPoint, forward, up, cc);
+			planeVelocity = ResolveMovement(dt, moveInput);
+			ResolveRotation(moveInput, cc.transform);
+
+			Vector3 worldVelocity = Quaternion.LookRotation(forward, up) * new Vector3(planeVelocity.x, planeVelocity.y, 0f);
+
+			UpdateAnimator(animator, intent);
+			cc.Move(worldVelocity * dt);
+
+			prevTrackPoint = trackPoint;
+		}
+
+		private void StartDash(Vector2 dir)
+		{
+			if (MathUtils.ApproxZero(dir.sqrMagnitude)) return;
+
+			dashTimer = dashDuration;
+			dashDir = dir.normalized;
+			planeVelocity = dashDir * InitialDashVelocity;
+		}
+
+		private void ConstrainPosition(Vector3 trackPoint, Vector3 forward, Vector3 up, CharacterController cc)
+		{
+			Vector3 offset = Quaternion.LookRotation(forward, up) * (cc.transform.position - prevTrackPoint);
+			cc.transform.position = trackPoint + offset;
+		}
+
+		private Vector2 ResolveMovement(float dt, Vector2 moveInput)
+		{
+			if (isDashing)
 			{
-				velocity.y = -1f;
+				return ResolveDash(dt);
 			}
 			else
 			{
-				float gravity = velocity.y > 0 ? Gravity : FallGravity;
-				velocity.y += gravity * Time.deltaTime;
+				return ResolveFlight(moveInput);
 			}
 		}
 
-		private Vector2 ResolveHorizontalVelocity(bool isRunning, Vector3 moveDir, Vector2 moveInput, Vector2 velocityXZ)
+		private Vector2 ResolveDash(float dt)
 		{
-			float effectiveMovementSpeed = isRunning ? MovementSpeed : WalkSpeed;
+			dashTimer -= dt;
 
-			velocityXZ = ApplyGroundMovement(moveDir, velocityXZ, effectiveMovementSpeed);
-			velocityXZ = Vector3.ClampMagnitude(velocityXZ, moveInput.magnitude * effectiveMovementSpeed);
-
-			return velocityXZ;
+			if (dashTimer <= 0)
+			{
+				isDashing = false;
+				return Vector2.zero;
+			}
+			else
+			{
+				float t = dashTimer / dashDuration;
+				return dashDir * (InitialDashVelocity * t);
+			}
 		}
 
-		private Vector2 ApplyGroundMovement(Vector3 moveDir, Vector2 velocityXZ, float effectiveMovementSpeed)
+		private Vector2 ResolveFlight(Vector2 moveInput)
 		{
-			if (moveDir.sqrMagnitude > 0f)
+			Vector2 velocity = Vector2.zero;
+			if (moveInput.sqrMagnitude > 0f)
 			{
-				velocityXZ = Vector2.MoveTowards(velocityXZ, moveDir.xz() * effectiveMovementSpeed, Acceleration * Time.deltaTime);
+				velocity = Vector2.MoveTowards(planeVelocity, moveInput.normalized * FlightSpeed, Acceleration * Time.deltaTime);
 			}
 			else
 			{
 				float accelerationScale = 1f / 4f;
-				float magnitude = Mathf.MoveTowards(velocityXZ.magnitude, 0f, Acceleration * accelerationScale * Time.deltaTime);
-				velocityXZ = velocityXZ.normalized * magnitude;
+				float magnitude = Mathf.MoveTowards(planeVelocity.magnitude, 0f, Acceleration * accelerationScale * Time.deltaTime);
+				velocity = planeVelocity.normalized * magnitude;
 			}
 
-			return velocityXZ;
+			return velocity;
+		}
+
+		private void ResolveRotation(Vector3 moveDir, Transform transform)
+		{
+			// should handle banking here
+		}
+
+		private void UpdateAnimator(Animator animator, PlayerIntent intent)
+		{
+			animator.SetFloat("Speed", planeVelocity.magnitude);
 		}
 	}
 }
