@@ -9,8 +9,7 @@ public class PlayerInputReader : ICharacterInputReader, GameInputActions.IPlayer
 
 	public event Action AttackStartedEvent;
 	public event Action AttackCancelledEvent;
-	public event Action DashStartedEvent;
-	public event Action DashCancelledEvent;
+	public event Action DashEvent;
 	public event Action NextEvent;
 	public event Action PreviousEvent;
 	public event Action PauseEvent;
@@ -61,8 +60,7 @@ public class PlayerInputReader : ICharacterInputReader, GameInputActions.IPlayer
 
 	public void OnDash(InputAction.CallbackContext ctx)
 	{
-		if (ctx.started) { DashStartedEvent?.Invoke(); }
-		if (ctx.canceled) { DashCancelledEvent?.Invoke(); }
+		if (ctx.started) { DashEvent?.Invoke(); }
 	}
 
 	public void Enable() => OnEnable?.Invoke();

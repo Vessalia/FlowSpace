@@ -9,8 +9,7 @@ public interface ICharacterInputReader
 	public event Action AttackStartedEvent;
 	public event Action AttackCancelledEvent;
 
-	public event Action DashStartedEvent;
-	public event Action DashCancelledEvent;
+	public event Action DashEvent;
 
 	public event Action NextEvent;
 	public event Action PreviousEvent;

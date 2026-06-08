@@ -29,9 +29,7 @@ namespace Assets.Scripts.Player
 
 		private Vector2 planeVelocity;
 
-		private Vector3 prevTrackPoint = Vector3.zero;
-
-		public void Tick(float dt, PlayerIntent intent, CharacterController cc, Animator animator, Vector3 trackPoint, Vector3 forward, Vector3 up)
+		public void Tick(float dt, PlayerIntent intent, Transform transform, Animator animator)
 		{
 			Vector2 moveInput = intent.Move;
 
@@ -41,16 +39,11 @@ namespace Assets.Scripts.Player
 				StartDash(moveInput);
 			}
 
-			ConstrainPosition(trackPoint, forward, up, cc);
 			planeVelocity = ResolveMovement(dt, moveInput);
-			ResolveRotation(moveInput, cc.transform);
-
-			Vector3 worldVelocity = Quaternion.LookRotation(forward, up) * new Vector3(planeVelocity.x, planeVelocity.y, 0f);
+			ResolveRotation(moveInput, transform);
 
 			UpdateAnimator(animator, intent);
-			cc.Move(worldVelocity * dt);
-
-			prevTrackPoint = trackPoint;
+			transform.localPosition += new Vector3(planeVelocity.x, planeVelocity.y, 0) * dt;
 		}
 
 		private void StartDash(Vector2 dir)
@@ -60,12 +53,6 @@ namespace Assets.Scripts.Player
 			dashTimer = dashDuration;
 			dashDir = dir.normalized;
 			planeVelocity = dashDir * InitialDashVelocity;
-		}
-
-		private void ConstrainPosition(Vector3 trackPoint, Vector3 forward, Vector3 up, CharacterController cc)
-		{
-			Vector3 offset = Quaternion.LookRotation(forward, up) * (cc.transform.position - prevTrackPoint);
-			cc.transform.position = trackPoint + offset;
 		}
 
 		private Vector2 ResolveMovement(float dt, Vector2 moveInput)

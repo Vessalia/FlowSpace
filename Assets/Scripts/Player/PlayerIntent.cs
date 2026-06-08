@@ -15,8 +15,7 @@ namespace Assets.Scripts.Player
 			var _input = InputManager.Instance.GetPlayerInput();
 			_input.MoveEvent += OnMove;
 			_input.LookEvent += OnLook;
-			_input.DashStartedEvent += OnDashStart;
-			_input.DashCancelledEvent += OnDashEnd;
+			_input.DashEvent += OnDash;
 		}
 
 		~PlayerIntent() => Dispose();
@@ -26,8 +25,7 @@ namespace Assets.Scripts.Player
 			var _input = InputManager.Instance.GetPlayerInput();
 			_input.MoveEvent -= OnMove;
 			_input.LookEvent -= OnLook;
-			_input.DashStartedEvent -= OnDashStart;
-			_input.DashCancelledEvent -= OnDashEnd;
+			_input.DashEvent -= OnDash;
 		}
 
 		public void Tick()
@@ -37,13 +35,12 @@ namespace Assets.Scripts.Player
 
 		public void LateTick()
 		{
-
+			Dash = false;
 		}
 
 		private void OnMove(Vector2 move) => Move = move;
 		private void OnLook(Vector2 look) => Look = look;
 
-		private void OnDashStart() => Dash = true;
-		private void OnDashEnd() => Dash = false; // this probably shouldn't be on release
+		private void OnDash() => Dash = true;
 	}
 }

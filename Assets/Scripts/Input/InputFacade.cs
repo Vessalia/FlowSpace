@@ -9,8 +9,7 @@ public class CharacterInputFacade : ICharacterInputReader
 	public event Action<Vector2> LookEvent;
 	public event Action AttackStartedEvent;
 	public event Action AttackCancelledEvent;
-	public event Action DashStartedEvent;
-	public event Action DashCancelledEvent;
+	public event Action DashEvent;
 	public event Action NextEvent;
 	public event Action PreviousEvent;
 	public event Action PauseEvent;
@@ -34,8 +33,7 @@ public class CharacterInputFacade : ICharacterInputReader
 		reader.LookEvent += OnLook;
 		reader.AttackStartedEvent += OnAttackStarted;
 		reader.AttackCancelledEvent += OnAttackCancelled;
-		reader.DashStartedEvent += OnDashStarted;
-		reader.DashCancelledEvent += OnDashCancelled;
+		reader.DashEvent += OnDash;
 		reader.NextEvent += OnNext;
 		reader.PreviousEvent += OnPrevious;
 		reader.PauseEvent += OnPause;
@@ -47,8 +45,7 @@ public class CharacterInputFacade : ICharacterInputReader
 		reader.LookEvent -= OnLook;
 		reader.AttackStartedEvent -= OnAttackStarted;
 		reader.AttackCancelledEvent -= OnAttackCancelled;
-		reader.DashStartedEvent -= OnDashStarted;
-		reader.DashCancelledEvent -= OnDashCancelled;
+		reader.DashEvent -= OnDash;
 		reader.NextEvent -= OnNext;
 		reader.PreviousEvent -= OnPrevious;
 		reader.PauseEvent -= OnPause;
@@ -58,8 +55,7 @@ public class CharacterInputFacade : ICharacterInputReader
 	private void OnLook(Vector2 v) => LookEvent?.Invoke(v);
 	private void OnAttackStarted() => AttackStartedEvent?.Invoke();
 	private void OnAttackCancelled() => AttackCancelledEvent?.Invoke();
-	private void OnDashStarted() => DashStartedEvent?.Invoke();
-	private void OnDashCancelled() => DashCancelledEvent?.Invoke();
+	private void OnDash() => DashEvent?.Invoke();
 	private void OnNext() => NextEvent?.Invoke();
 	private void OnPrevious() => PreviousEvent?.Invoke();
 	private void OnPause() => PauseEvent?.Invoke();
