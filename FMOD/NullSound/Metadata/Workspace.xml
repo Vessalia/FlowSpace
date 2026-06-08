@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="Workspace" id="{1a18cc0b-5055-4b21-9b25-1de4deae2928}">
+		<property name="builtBanksOutputDirectory">
+			<value>../../Assets/Audio/Banks</value>
+		</property>
+		<relationship name="masterEventFolder">
+			<destination>{044b8767-3dae-48d1-aecf-acc5038d1246}</destination>
+		</relationship>
+		<relationship name="masterTagFolder">
+			<destination>{d595264f-cfa0-4225-b14e-9e112a01fc3b}</destination>
+		</relationship>
+		<relationship name="masterEffectPresetFolder">
+			<destination>{36c11832-7379-4b73-9574-8dfce23f86d7}</destination>
+		</relationship>
+		<relationship name="masterParameterPresetFolder">
+			<destination>{6e7452e1-1dc0-4208-81fe-24816b1dd189}</destination>
+		</relationship>
+		<relationship name="masterBankFolder">
+			<destination>{a936d989-1ff5-4e63-b8d9-25fb8ae69390}</destination>
+		</relationship>
+		<relationship name="masterSandboxFolder">
+			<destination>{471860cc-e6e1-4d3f-8433-21864a934804}</destination>
+		</relationship>
+		<relationship name="masterAssetFolder">
+			<destination>{607b0485-6481-48cc-9e71-969a43c42746}</destination>
+		</relationship>
+		<relationship name="mixer">
+			<destination>{84bd03b2-9001-43a0-8142-116416a25ac3}</destination>
+		</relationship>
+		<relationship name="profilerSessionFolder">
+			<destination>{b9cd4990-9156-4a99-a1af-11f551be3b81}</destination>
+		</relationship>
+		<relationship name="platforms">
+			<destination>{314624c5-2173-4747-93e3-36d6d91e206e}</destination>
+		</relationship>
+	</object>
+</objects>
