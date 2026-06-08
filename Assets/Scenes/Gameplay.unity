@@ -134,9 +134,9 @@ GameObject:
   m_Component:
   - component: {fileID: 217556834}
   - component: {fileID: 217556833}
-  - component: {fileID: 217556832}
   - component: {fileID: 217556831}
   - component: {fileID: 217556835}
+  - component: {fileID: 217556836}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -188,14 +188,6 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
---- !u!81 &217556832
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 217556830}
-  m_Enabled: 1
 --- !u!20 &217556833
 Camera:
   m_ObjectHideFlags: 0
@@ -294,6 +286,20 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   CustomBlends: {fileID: 0}
+--- !u!114 &217556836
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 217556830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86c6556701af9e04380698b89f691b6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: FMODUnity::FMODUnity.StudioListener
+  nonRigidbodyVelocity: 0
+  attenuationObject: {fileID: 0}
 --- !u!1 &363405555
 GameObject:
   m_ObjectHideFlags: 0
@@ -489,7 +495,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 845281156}
   serializedVersion: 2
-  m_LocalRotation: {x: -2.509508e-10, y: 0.000000011774479, z: 0.000000046778823, w: 1}
+  m_LocalRotation: {x: -0, y: 0.000000011175871, z: 0.00000004679896, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -12}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -962,8 +968,8 @@ MonoBehaviour:
       Rotation:
         value:
           x: 0.18509935
-          y: -0.53072137
-          z: 0.12004486
+          y: -0.5307213
+          z: 0.120044865
           w: 0.818329
     - Position:
         x: -12.3012
@@ -997,10 +1003,10 @@ MonoBehaviour:
         z: 2.4003325
       Rotation:
         value:
-          x: 0.14208977
-          y: 0.8256923
-          z: 0.23903254
-          w: -0.49082187
+          x: 0.14208978
+          y: 0.82569236
+          z: 0.23903258
+          w: -0.4908219
     - Position:
         x: -25.04818
         y: -0.00000029228443
