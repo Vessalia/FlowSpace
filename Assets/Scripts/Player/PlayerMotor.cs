@@ -27,7 +27,15 @@ namespace Assets.Scripts.Player
 		public float timeToMaxSpeed = 0.1f; // how long does it take to reach max speed
 		public float Acceleration => FlightSpeed / timeToMaxSpeed;
 
+		private Camera cam;
+		[SerializeField] private BoxCollider boundsBox;
+
 		private Vector2 planeVelocity;
+
+		public void Init()
+		{
+			cam = Camera.main;
+		}
 
 		public void Tick(float dt, PlayerIntent intent, Transform transform, Animator animator)
 		{
@@ -44,6 +52,17 @@ namespace Assets.Scripts.Player
 
 			UpdateAnimator(animator, intent);
 			transform.localPosition += new Vector3(planeVelocity.x, planeVelocity.y, 0) * dt;
+		}
+
+		public void LateTick(Transform transform)
+		{
+			Vector3 playerCenter = cam.WorldToViewportPoint(transform.position);
+			Vector2 playerEdge = cam.WorldToViewportPoint(transform.position + cam.transform.right * boundsBox.size.x / 2 + cam.transform.up * boundsBox.size.y / 2).xy();
+			Vector2 buffer = new Vector2(Mathf.Abs(playerEdge.x - playerCenter.x), Mathf.Abs(playerEdge.y - playerCenter.y));
+
+			playerCenter.x = Mathf.Clamp(playerCenter.x, buffer.x, 1 - buffer.x);
+			playerCenter.y = Mathf.Clamp(playerCenter.y, buffer.y, 1 - buffer.y);
+			transform.position = cam.ViewportToWorldPoint(playerCenter);
 		}
 
 		private void StartDash(Vector2 dir)

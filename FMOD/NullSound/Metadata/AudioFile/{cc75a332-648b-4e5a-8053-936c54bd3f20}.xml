@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="AudioFile" id="{cc75a332-648b-4e5a-8053-936c54bd3f20}">
+		<property name="assetPath">
+			<value>Music/FlowCphrygian120bpm Kick.wav</value>
+		</property>
+		<property name="isStreaming">
+			<value>true</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>16</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{f1cf931f-c99e-4d9d-b421-20fbd678ee6a}</destination>
+		</relationship>
+	</object>
+</objects>
