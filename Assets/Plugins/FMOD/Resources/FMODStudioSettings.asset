@@ -316,9 +316,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: FMODUnity::FMODUnity.Settings
   switchSettingsMigration: 1
   HasSourceProject: 0
-  HasPlatforms: 0
+  HasPlatforms: 1
   sourceProjectPath: FMOD/NullSound/NullSound.fspro
-  sourceBankPath: Assets/Audio/Banks/Desktop
+  sourceBankPath: Assets/Audio/Banks
   sourceBankPathUnformatted: 
   BankRefreshCooldown: 5
   ShowBankRefreshWindow: 1

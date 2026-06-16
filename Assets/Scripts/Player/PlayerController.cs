@@ -14,18 +14,16 @@ namespace Assets.Scripts.Player
 		void Awake()
 		{
 			intent = new();
-			motor.Init();
 		}
 
 		void Update()
 		{
-			motor.Tick(Time.deltaTime, intent, transform, animator);
+			motor.Tick(Time.deltaTime, intent, animator);
 		}
 
 		private void LateUpdate()
 		{
 			intent.LateTick();
-			motor.LateTick(transform);
 		}
 
 		void OnDestroy()

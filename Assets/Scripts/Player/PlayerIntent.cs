@@ -28,11 +28,6 @@ namespace Assets.Scripts.Player
 			_input.DashEvent -= OnDash;
 		}
 
-		public void Tick()
-		{
-
-		}
-
 		public void LateTick()
 		{
 			Dash = false;

@@ -1,6 +1,7 @@
 ﻿using JetBrains.Annotations;
 using System;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 namespace Assets.Scripts.Player
 {
@@ -27,8 +28,11 @@ namespace Assets.Scripts.Player
 		public float timeToMaxSpeed = 0.1f; // how long does it take to reach max speed
 		public float Acceleration => FlightSpeed / timeToMaxSpeed;
 
-		private Camera cam;
+		[SerializeField] private Camera cam;
 		[SerializeField] private BoxCollider boundsBox;
+		[SerializeField] private Transform player;
+		[SerializeField] private RectTransform reticle;
+		[SerializeField] private RectTransform canvas;
 
 		private Vector2 planeVelocity;
 
@@ -37,8 +41,9 @@ namespace Assets.Scripts.Player
 			cam = Camera.main;
 		}
 
-		public void Tick(float dt, PlayerIntent intent, Transform transform, Animator animator)
+		public void Tick(float dt, PlayerIntent intent, Animator animator)
 		{
+			// ship movement
 			Vector2 moveInput = intent.Move;
 
 			if (!isDashing && intent.Dash)
@@ -48,21 +53,38 @@ namespace Assets.Scripts.Player
 			}
 
 			planeVelocity = ResolveMovement(dt, moveInput);
-			ResolveRotation(moveInput, transform);
+			ResolveRotation(moveInput);
 
 			UpdateAnimator(animator, intent);
-			transform.localPosition += new Vector3(planeVelocity.x, planeVelocity.y, 0) * dt;
+			player.localPosition += new Vector3(planeVelocity.x, planeVelocity.y, 0) * dt;
+
+			ConstrainToViewport();
+
+			// reticle movement
+			Vector2 pos = reticle.anchoredPosition + intent.Look;
+
+			Vector2 max = canvas.rect.size - reticle.rect.size / 2;
+			Vector2 min = reticle.rect.size / 2;
+			pos.x = Mathf.Clamp(pos.x, min.x, max.x);
+			pos.y = Mathf.Clamp(pos.y, min.y, max.y);
+
+			reticle.anchoredPosition = pos;
 		}
 
-		public void LateTick(Transform transform)
+		private void ConstrainToViewport()
 		{
-			Vector3 playerCenter = cam.WorldToViewportPoint(transform.position);
-			Vector2 playerEdge = cam.WorldToViewportPoint(transform.position + cam.transform.right * boundsBox.size.x / 2 + cam.transform.up * boundsBox.size.y / 2).xy();
-			Vector2 buffer = new Vector2(Mathf.Abs(playerEdge.x - playerCenter.x), Mathf.Abs(playerEdge.y - playerCenter.y));
+			Vector3 backFaceCenter = player.position - cam.transform.forward * boundsBox.size.z / 2;
 
-			playerCenter.x = Mathf.Clamp(playerCenter.x, buffer.x, 1 - buffer.x);
-			playerCenter.y = Mathf.Clamp(playerCenter.y, buffer.y, 1 - buffer.y);
-			transform.position = cam.ViewportToWorldPoint(playerCenter);
+			Vector3 viewportPos = cam.WorldToViewportPoint(backFaceCenter);
+
+			float bufferX = Mathf.Abs(cam.WorldToViewportPoint(backFaceCenter + cam.transform.right * boundsBox.size.x / 2).x - viewportPos.x);
+			float bufferY = Mathf.Abs(cam.WorldToViewportPoint(backFaceCenter + cam.transform.up * boundsBox.size.y / 2).y - viewportPos.y);
+
+			viewportPos.x = Mathf.Clamp(viewportPos.x, bufferX, 1 - bufferX);
+			viewportPos.y = Mathf.Clamp(viewportPos.y, bufferY, 1 - bufferY);
+
+			Vector3 clampedBack = cam.ViewportToWorldPoint(viewportPos);
+			player.position = clampedBack + cam.transform.forward * boundsBox.size.z / 2;
 		}
 
 		private void StartDash(Vector2 dir)
@@ -119,7 +141,7 @@ namespace Assets.Scripts.Player
 			return velocity;
 		}
 
-		private void ResolveRotation(Vector3 moveDir, Transform transform)
+		private void ResolveRotation(Vector3 moveDir)
 		{
 			// should handle banking here
 		}
