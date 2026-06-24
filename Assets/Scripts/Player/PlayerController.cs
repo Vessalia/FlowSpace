@@ -18,7 +18,8 @@ namespace Assets.Scripts.Player
 
 		void Update()
 		{
-			motor.Tick(Time.deltaTime, intent, animator);
+			var dt = Time.deltaTime;
+			motor.Tick(dt, intent, animator);
 		}
 
 		private void LateUpdate()

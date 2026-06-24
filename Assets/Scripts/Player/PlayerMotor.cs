@@ -36,11 +36,6 @@ namespace Assets.Scripts.Player
 
 		private Vector2 planeVelocity;
 
-		public void Init()
-		{
-			cam = Camera.main;
-		}
-
 		public void Tick(float dt, PlayerIntent intent, Animator animator)
 		{
 			// ship movement

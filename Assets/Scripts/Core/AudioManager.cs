@@ -1,11 +1,47 @@
 using FMOD.Studio;
 using FMODUnity;
 using System;
+using UnityEditor;
+using UnityEngine;
 
 public class AudioManager : MonoSingleton<AudioManager>
 {
+	[SerializeField] private EventReference musicEvent;
 	private EventInstance _musicInstance;
-	private AudioManager() { }
+
+	protected override void Awake()
+	{
+		SetMusic(musicEvent);
+
+		EditorApplication.pauseStateChanged += (PauseState state) =>
+		{
+			switch (state)
+			{
+				case PauseState.Paused:
+					Pause();
+					break;
+				case PauseState.Unpaused:
+					Resume();
+					break;
+			}
+		};
+
+		if (EditorApplication.isPaused)
+		{
+			Pause();
+		}
+
+		DontDestroyOnLoad(gameObject);
+	}
+
+	public void OnDestroy()
+	{
+		if (!_musicInstance.isValid()) return;
+
+		_musicInstance.setUserData(IntPtr.Zero);
+		_musicInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+		_musicInstance.release();
+	}
 
 	public void SetMusic(EventReference musicReference)
 	{
@@ -16,6 +52,7 @@ public class AudioManager : MonoSingleton<AudioManager>
 		}
 
 		var musicDescription = RuntimeManager.GetEventDescription(musicReference);
+		musicDescription.loadSampleData();
 		musicDescription.createInstance(out _musicInstance);
 		_musicInstance.start();
 	}
@@ -30,24 +67,9 @@ public class AudioManager : MonoSingleton<AudioManager>
 		_musicInstance.setPaused(false);
 	}
 
-	public void Destroy()
-	{
-		if (!_musicInstance.isValid()) return;
-
-		_musicInstance.setUserData(IntPtr.Zero);
-		_musicInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-		_musicInstance.release();
-	}
-
 	public EventInstance GetMusicInstance()
 	{
 		return _musicInstance;
-	}
-
-	public int GetTimelinePosition()
-	{
-		_musicInstance.getTimelinePosition(out int position);
-		return position;
 	}
 
 	public void PlayOneShot(EventReference oneShot)
