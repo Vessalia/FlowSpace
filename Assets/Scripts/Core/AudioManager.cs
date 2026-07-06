@@ -1,3 +1,4 @@
+using FMOD;
 using FMOD.Studio;
 using FMODUnity;
 using System;
@@ -56,10 +57,16 @@ public class AudioManager : MonoSingleton<AudioManager>
 
 	private IEnumerator TrackAudioOnceLoaded()
 	{
-		FMOD.ChannelGroup channelGroup;
-		while (_musicInstance.getChannelGroup(out channelGroup) != FMOD.RESULT.OK)
+		ChannelGroup channelGroup;
+		while (_musicInstance.isValid() && _musicInstance.getChannelGroup(out channelGroup) != FMOD.RESULT.OK)
 		{
 			yield return null;
+		}
+
+		if (!_musicInstance.isValid())
+		{
+			UnityEngine.Debug.LogWarning("TrackAudioOnceLoaded: instance became invalid before channel group was ready.");
+			yield break;
 		}
 
 		BeatManager.Instance.TrackAudio(_musicInstance);
@@ -87,11 +94,6 @@ public class AudioManager : MonoSingleton<AudioManager>
 	public void Resume()
 	{
 		_musicInstance.setPaused(false);
-	}
-
-	public EventInstance GetMusicInstance()
-	{
-		return _musicInstance;
 	}
 
 	public void PlayOneShot(EventReference oneShot)
