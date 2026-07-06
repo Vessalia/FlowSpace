@@ -1,6 +1,7 @@
 using FMOD.Studio;
 using FMODUnity;
 using System;
+using System.Collections;
 using UnityEditor;
 using UnityEngine;
 
@@ -11,6 +12,8 @@ public class AudioManager : MonoSingleton<AudioManager>
 
 	protected override void Awake()
 	{
+		base.Awake();
+
 		SetMusic(musicEvent);
 
 		EditorApplication.pauseStateChanged += (PauseState state) =>
@@ -30,8 +33,11 @@ public class AudioManager : MonoSingleton<AudioManager>
 		{
 			Pause();
 		}
+	}
 
-		DontDestroyOnLoad(gameObject);
+	public void Start()
+	{
+		StartCoroutine(TrackAudioOnceLoaded());
 	}
 
 	public void OnDestroy()
@@ -43,6 +49,22 @@ public class AudioManager : MonoSingleton<AudioManager>
 		_musicInstance.release();
 	}
 
+	private void Update()
+	{
+		BeatManager.Instance.Update();
+	}
+
+	private IEnumerator TrackAudioOnceLoaded()
+	{
+		FMOD.ChannelGroup channelGroup;
+		while (_musicInstance.getChannelGroup(out channelGroup) != FMOD.RESULT.OK)
+		{
+			yield return null;
+		}
+
+		BeatManager.Instance.TrackAudio(_musicInstance);
+	}
+
 	public void SetMusic(EventReference musicReference)
 	{
 		if (_musicInstance.isValid())
@@ -52,8 +74,8 @@ public class AudioManager : MonoSingleton<AudioManager>
 		}
 
 		var musicDescription = RuntimeManager.GetEventDescription(musicReference);
-		musicDescription.loadSampleData();
 		musicDescription.createInstance(out _musicInstance);
+
 		_musicInstance.start();
 	}
 

@@ -1,83 +1,182 @@
-using UnityEngine;
+using FMOD;
+using FMOD.Studio;
+using FMODUnity;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using FMOD.Studio;
+using UnityEngine;
 
-public class BeatManager : MonoSingleton<BeatManager>
+public struct BeatSignature
+{
+	public float Period {  get; private set; }
+	public float Offset { get; private set; }
+
+	public BeatSignature(float period, float offset) : this()
+	{
+		this.Period = period;
+		this.Offset = offset;
+	}
+};
+
+public class BeatManager : Singleton<BeatManager>
 {
 	[StructLayout(LayoutKind.Sequential)]
 	private class TimelineInfo
 	{
 		public float tempo = 0;
-		public int currentBeat = 0;
+		public int currentBeat = 0; // use this to get the next/current beat time
 		public FMOD.StringWrapper lastMarker = new();
+
+		public bool beatDirty = false;
+		public bool markerDirty = false;
 	}
 
-	private TimelineInfo timelineInfo = new TimelineInfo();
+	private TimelineInfo timelineInfo = null;
 	private GCHandle timelineHandle;
 
+	ChannelGroup trackedGroup;
+
+	ulong lastClock = 0;
+	ulong clock = 0;
+
+	float bpm = 0;
+	int sampleRate = 0;
+
+	bool trackingAudio = false;
+
 	// Beats
-	private EVENT_CALLBACK beatCallback = new EVENT_CALLBACK(BeatEventCallback);
-	private Dictionary<Tuple<float, float>, Action> beatHandlers = new();
+	private EVENT_CALLBACK beatCallback;
+	private Dictionary<BeatSignature, BeatEvent> beatHandlers = new();
+	private Dictionary<BeatSignature, bool> primed = new();
 
 	// Markers
 	private Dictionary<string, Action> markerHandlers = new();
 
-	protected override void Awake()
+	BeatManager()
 	{
-		timelineHandle = GCHandle.Alloc(timelineInfo, GCHandleType.Pinned);
-		TrackAudio(AudioManager.Instance.GetMusicInstance()); // This is terrible, but should work for now
+		beatCallback = new EVENT_CALLBACK(BeatEventCallback);
 	}
 
-	void OnDestroy()
+	~BeatManager()
 	{
 		timelineHandle.Free();
 	}
 
 	public void TrackAudio(EventInstance audioInstance)
 	{
+		timelineInfo = new TimelineInfo();
+		timelineHandle = GCHandle.Alloc(timelineInfo, GCHandleType.Pinned);
+
 		audioInstance.setUserData(GCHandle.ToIntPtr(timelineHandle));
 		audioInstance.setCallback(beatCallback, EVENT_CALLBACK_TYPE.TIMELINE_BEAT | EVENT_CALLBACK_TYPE.TIMELINE_MARKER);
+		audioInstance.getChannelGroup(out trackedGroup);
+
+		// get the sample rate
+		RuntimeManager.CoreSystem.getSoftwareFormat(out sampleRate, out var speakerMode, out var numRawSpeakers);
+		UpdateClock();
+		lastClock = clock; // only track events from the current position of the song
+
+		trackingAudio = true;
+	}
+
+	private float GetSecondsPerBeat(float bpm)
+	{
+		return bpm == 0 ? -1 : 60 / bpm;
 	}
 
 	public void Update()
 	{
+		if (!trackingAudio) return;
+
+		UpdateClock();
+		FireHandlers();
+		ClearFlags();
+	}
+
+	private void UpdateClock()
+	{
+		lastClock = clock;
+		trackedGroup.getDSPClock(out clock, out var parentClock);
+	}
+
+	private void FireHandlers()
+	{
+		float secondsPerBeat = GetSecondsPerBeat(bpm);
+		if (secondsPerBeat < 0) return; // tempo not set yet
+
+		float samplesPerBeat = secondsPerBeat * sampleRate;
+		float prevBeatPos = lastClock / samplesPerBeat;
+		float currBeatPos = clock / samplesPerBeat;
+
 		foreach (var handlerPair in beatHandlers)
 		{
-			var handler = handlerPair.Value;
+			var signature = handlerPair.Key;
+			bool inWindow = IsActive(signature, prevBeatPos, currBeatPos, out float beatDelay);
 
-			handler.Invoke();
+			if (inWindow && primed[signature])
+			{
+				handlerPair.Value.Invoke(beatDelay * secondsPerBeat);
+				primed[signature] = false;
+			}
+			else if (!inWindow && !primed[signature])
+			{
+				primed[signature] = true;
+			}
 		}
 	}
 
-	public void RegisterBeatListener(Action listener, float beat, float offset = 0)
+	private void ClearFlags()
+	{
+		if (timelineInfo.beatDirty)
+		{
+			bpm = timelineInfo.tempo;
+		}
+
+		if (timelineInfo.markerDirty && markerHandlers.ContainsKey(timelineInfo.lastMarker))
+		{
+			markerHandlers[timelineInfo.lastMarker].Invoke();
+		}
+	}
+
+	private bool IsActive(BeatSignature signature, float prevBeatPos, float currBeatPos, out float beatDelay)
+	{
+		// get smallest n s.t. offset + n * period > prev → n > (prev - offset) / period
+		float n = Mathf.Floor((prevBeatPos - signature.Offset) / signature.Period) + 1;
+		beatDelay = currBeatPos - signature.Offset + n * signature.Period;
+		return beatDelay >= 0;
+	}
+
+	public void RegisterBeatListener(Action<float> listener, float period, float offset = 0)
 	{
 		offset = Mathf.Repeat(offset, 1);
-		var beatSig = new Tuple<float, float>(beat, offset);
+		var beatSig = new BeatSignature(period, offset);
 
 		if (beatHandlers.ContainsKey(beatSig))
 		{
-			beatHandlers[beatSig] += listener;
+			beatHandlers[beatSig].RegisterBeatListener(listener);
 		}
 		else
 		{
-			beatHandlers.Add(beatSig, listener);
+			BeatEvent handler = new(period, offset);
+			handler.RegisterBeatListener(listener);
+			beatHandlers.Add(beatSig, handler);
+			primed.Add(beatSig, true);
 		}
 	}
 
-	public void DeregisterBeatListener(Action listener, float beat, float offset = 0)
+	public void DeregisterBeatListener(Action<float> listener, float period, float offset = 0)
 	{
 		offset = Mathf.Repeat(offset, 1);
-		var beatSig = new Tuple<float, float>(beat, offset);
+		var beatSig = new BeatSignature(period, offset);
 
 		if (beatHandlers.ContainsKey(beatSig))
 		{
-			beatHandlers[beatSig] -= listener;
+			beatHandlers[beatSig].DeregisterBeatListener(listener);
 
-			if (beatHandlers[beatSig] == null)
+			if (!beatHandlers[beatSig].HasAction)
 			{
 				beatHandlers.Remove(beatSig);
+				primed.Remove(beatSig);
 			}
 		}
 	}
@@ -123,7 +222,7 @@ public class BeatManager : MonoSingleton<BeatManager>
 
 		if (result != FMOD.RESULT.OK)
 		{
-			Debug.LogError("Timeline Callback error: " + result);
+			UnityEngine.Debug.LogError("Timeline Callback error: " + result);
 		}
 		else if (timelineInfoPtr != IntPtr.Zero)
 		{
@@ -137,12 +236,14 @@ public class BeatManager : MonoSingleton<BeatManager>
 					var parameter = (TIMELINE_BEAT_PROPERTIES)Marshal.PtrToStructure(parameterPtr, typeof(FMOD.Studio.TIMELINE_BEAT_PROPERTIES));
 					timelineInfo.currentBeat = parameter.beat;
 					timelineInfo.tempo = parameter.tempo;
+					timelineInfo.beatDirty = true;
 					break;
 				}
 				case EVENT_CALLBACK_TYPE.TIMELINE_MARKER:
 				{
 					var parameter = (TIMELINE_MARKER_PROPERTIES)Marshal.PtrToStructure(parameterPtr, typeof(TIMELINE_MARKER_PROPERTIES));
 					timelineInfo.lastMarker = parameter.name;
+					timelineInfo.markerDirty = true;
 					break;
 				}
 			}

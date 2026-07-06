@@ -32,6 +32,7 @@ namespace Assets.Scripts.Player
 		[SerializeField] private BoxCollider boundsBox;
 		[SerializeField] private Transform player;
 		[SerializeField] private RectTransform reticle;
+		[SerializeField] private RectTransform reticleBounds;
 		[SerializeField] private RectTransform canvas;
 
 		private Vector2 planeVelocity;
@@ -58,8 +59,8 @@ namespace Assets.Scripts.Player
 			// reticle movement
 			Vector2 pos = reticle.anchoredPosition + intent.Look;
 
-			Vector2 max = canvas.rect.size - reticle.rect.size / 2;
-			Vector2 min = reticle.rect.size / 2;
+			Vector2 max = canvas.rect.size - reticleBounds.rect.size / 2;
+			Vector2 min = reticleBounds.rect.size / 2;
 			pos.x = Mathf.Clamp(pos.x, min.x, max.x);
 			pos.y = Mathf.Clamp(pos.y, min.y, max.y);
 

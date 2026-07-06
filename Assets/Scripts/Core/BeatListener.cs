@@ -2,21 +2,20 @@ using UnityEngine;
 
 public abstract class BeatListener : MonoBehaviour
 {
-	[SerializeField]
-	protected float beat = 1;
+	[SerializeField] protected float period = 1;
 
-	[SerializeField]
-	protected float offset = 0;
+	[Range (0f, 1f)]
+	[SerializeField] protected float offset = 0;
 
-	public void Start()
+	public virtual void Start()
 	{
-		BeatManager.Instance.RegisterBeatListener(BeatAction, beat, offset);
+		BeatManager.Instance.RegisterBeatListener(BeatAction, period, offset);
 	}
 
-	private void OnDestroy()
+	public virtual void OnDestroy()
 	{
-		BeatManager.Instance.DeregisterBeatListener(BeatAction, beat, offset);
+		BeatManager.Instance.DeregisterBeatListener(BeatAction, period, offset);
 	}
 
-	public abstract void BeatAction();
+	public abstract void BeatAction(float delay);
 }
