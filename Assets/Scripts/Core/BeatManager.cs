@@ -18,6 +18,7 @@ public struct BeatSignature
 	}
 };
 
+// this class is overloaded at the moment, and sync issues are likely to occur when changing songs
 public class BeatManager : Singleton<BeatManager>
 {
 	[StructLayout(LayoutKind.Sequential)]
@@ -108,6 +109,7 @@ public class BeatManager : Singleton<BeatManager>
 		float prevBeatPos = lastClock / samplesPerBeat;
 		float currBeatPos = clock / samplesPerBeat;
 
+		// maybe we should loop inside this loop in case there's a listener that should've fired multiple times within the clock window
 		foreach (var handlerPair in beatHandlers)
 		{
 			var signature = handlerPair.Key;
@@ -142,7 +144,7 @@ public class BeatManager : Singleton<BeatManager>
 	{
 		// get smallest n s.t. offset + n * period > prev → n > (prev - offset) / period
 		float n = Mathf.Floor((prevBeatPos - signature.Offset) / signature.Period) + 1;
-		beatDelay = currBeatPos - signature.Offset + n * signature.Period;
+		beatDelay = currBeatPos - (signature.Offset + n * signature.Period);
 		return beatDelay >= 0;
 	}
 
