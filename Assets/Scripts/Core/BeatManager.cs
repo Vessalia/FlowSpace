@@ -24,7 +24,7 @@ public class BeatManager : Singleton<BeatManager>
 	private class TimelineInfo
 	{
 		public float tempo = 0;
-		public int currentBeat = 0; // use this to get the next/current beat time
+		public int currentBeat = 0;
 		public FMOD.StringWrapper lastMarker = new();
 
 		public bool beatDirty = false;
