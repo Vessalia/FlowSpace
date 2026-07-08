@@ -9,12 +9,12 @@ public abstract class BeatListener : MonoBehaviour
 
 	public virtual void Start()
 	{
-		BeatManager.Instance.RegisterBeatListener(BeatAction, period, offset);
+		Pulse.Instance.RegisterBeatListener(BeatAction, period, offset);
 	}
 
 	public virtual void OnDestroy()
 	{
-		BeatManager.Instance.DeregisterBeatListener(BeatAction, period, offset);
+		Pulse.Instance.DeregisterBeatListener(BeatAction, period, offset);
 	}
 
 	public abstract void BeatAction(float delay);
