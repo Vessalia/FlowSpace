@@ -4,7 +4,7 @@ using UnityEngine;
 
 class Pulse
 {
-	private string trackId;
+	private AudioClock clock;
 	private Metronome metronome;
 
 	private Dictionary<BeatSignature, BeatEvent> beatHandlers = new();
@@ -12,54 +12,13 @@ class Pulse
 
 	private Dictionary<string, Action> markerHandlers = new();
 
-	public Pulse(string trackId, Metronome metronome)
+	public Pulse(AudioClock clock, Metronome metronome)
 	{
-		this.trackId = trackId;
+		this.clock = clock;
 		this.metronome = metronome;
-	}
 
-	public void Tick()
-	{
-		var clock = Clock.Instance.GetAudioClock(trackId);
-		var info = metronome.timelineInfo;
-
-		float secondsPerBeat = info.tempo == 0 ? -1 : 60f / info.tempo;
-		if (secondsPerBeat < 0) return;
-
-		float prevBeatPos = clock.GetLastBeatPosition(info.tempo);
-		float currBeatPos = clock.GetBeatPosition(info.tempo);
-
-		foreach (var (signature, handler) in beatHandlers)
-		{
-			bool inWindow = IsBeatActive(signature, prevBeatPos, currBeatPos, out float beatDelay);
-			if (inWindow && primed[signature])
-			{
-				handler.Invoke(beatDelay * secondsPerBeat);
-				primed[signature] = false;
-			}
-			else if (!inWindow && !primed[signature])
-			{
-				primed[signature] = true;
-			}
-		}
-
-		Action onMarker = () =>
-		{
-			if (markerHandlers.TryGetValue(info.lastMarker, out var handler))
-			{
-				handler.Invoke();
-			}
-		};
-
-		metronome.HandleFlags(null, onMarker);
-	}
-
-	private bool IsBeatActive(BeatSignature signature, float prevBeatPos, float currBeatPos, out float beatDelay)
-	{
-		// get smallest n s.t. offset + n * period > prev → n > (prev - offset) / period
-		float n = Mathf.Floor((prevBeatPos - signature.Offset) / signature.Period) + 1;
-		beatDelay = currBeatPos - (signature.Offset + n * signature.Period);
-		return beatDelay >= 0;
+		clock.OnTick += Tick;
+		metronome.OnMarker += HandleMarker;
 	}
 
 	public void RegisterBeatListener(Action<float> listener, float period, float offset = 0)
@@ -88,6 +47,46 @@ class Pulse
 		{
 			beatHandlers.Remove(sig);
 			primed.Remove(sig);
+		}
+	}
+
+	private bool IsBeatActive(BeatSignature signature, float prevBeatPos, float currBeatPos, out float beatDelay)
+	{
+		// get smallest n s.t. offset + n * period > prev → n > (prev - offset) / period
+		float n = Mathf.Floor((prevBeatPos - signature.Offset) / signature.Period) + 1;
+		beatDelay = currBeatPos - (signature.Offset + n * signature.Period);
+		return beatDelay >= 0;
+	}
+
+	private void Tick()
+	{
+		var info = metronome.timelineInfo;
+		if (info.tempo <= 0) return;
+
+		float secondsPerBeat = 60f / info.tempo;
+		float prevBeatPos = clock.LastBeatPos;
+		float currBeatPos = clock.BeatPos;
+
+		foreach (var (signature, handler) in beatHandlers)
+		{
+			bool inWindow = IsBeatActive(signature, prevBeatPos, currBeatPos, out float beatDelay);
+			if (inWindow && primed[signature])
+			{
+				handler.Invoke(beatDelay * secondsPerBeat);
+				primed[signature] = false;
+			}
+			else if (!inWindow && !primed[signature])
+			{
+				primed[signature] = true;
+			}
+		}
+	}
+
+	private void HandleMarker()
+	{
+		if (markerHandlers.TryGetValue(metronome.timelineInfo.lastMarker, out var handler))
+		{
+			handler.Invoke();
 		}
 	}
 }

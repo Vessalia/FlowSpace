@@ -2,12 +2,16 @@ using FMOD;
 using FMOD.Studio;
 using FMODUnity;
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
 public class MusicPlayer : Singleton<MusicPlayer>
 {
-	private EventInstance audioInstance;
+	private Dictionary<int, EventInstance> audioInstances;
+	private int nextHandle = 0;
+
+	public int MusicHandle { get; private set; } = -1;
 
 	MusicPlayer()
 	{
@@ -35,45 +39,76 @@ public class MusicPlayer : Singleton<MusicPlayer>
 		ClearAudio();
 	}
 
-	public void SetAudio(EventReference audioEvent)
+	public int PlayMusic(EventReference musicEvent)
 	{
-		ClearAudio();
+		musicHandle = PlayAudio(musicEvent);
+		return musicHandle;
+	}
 
+	public int PlayAudio(EventReference audioEvent)
+	{
 		var audioDescription = RuntimeManager.GetEventDescription(audioEvent);
-		audioDescription.createInstance(out audioInstance);
+		audioDescription.createInstance(out EventInstance audioInstance);
 
 		audioInstance.start();
+
+		int handle = nextHandle++;
+		audioInstances[handle] = audioInstance;
+		return handle;
 	}
 
 	public void ClearAudio()
 	{
-		if (audioInstance.isValid())
+		foreach (var audioInstance in audioInstances.Values)
 		{
-			audioInstance.setUserData(IntPtr.Zero);
-			audioInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
-			audioInstance.release();
+			if (audioInstance.isValid())
+			{
+				audioInstance.setUserData(IntPtr.Zero);
+				audioInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+				audioInstance.release();
+			}
 		}
 	}
 
-	public void Pause()
+	public void Pause(int handle = -1)
 	{
-		audioInstance.setPaused(true);
+		if (handle < 0)
+		{
+			foreach (var audioInstance in audioInstances.Values)
+			{
+				audioInstance.setPaused(true);
+			}
+		}
+		else
+		{
+			audioInstances[handle].setPaused(true);
+		}
 	}
 
-	public void Resume()
+	public void Resume(int handle = -1)
 	{
-		audioInstance.setPaused(false);
+		if (handle < 0)
+		{
+			foreach (var audioInstance in audioInstances.Values)
+			{
+				audioInstance.setPaused(false);
+			}
+		}
+		else
+		{
+			audioInstances[handle].setPaused(false);
+		}
 	}
 
-	public bool GetAudioInstance(out EventInstance instance)
+	public bool GetAudioInstance(int handle, out EventInstance audioInstance)
 	{
-		instance = audioInstance;
-		return instance.isValid();
+		audioInstance = audioInstances[handle];
+		return audioInstance.isValid();
 	}
 
-	public RESULT getChannelGroup(out ChannelGroup channelGroup)
+	public RESULT getChannelGroup(int handle, out ChannelGroup channelGroup)
 	{
-		return audioInstance.getChannelGroup(out channelGroup);
+		return audioInstances[handle].getChannelGroup(out channelGroup);
 	}
 
 	public void PlayOneShot(EventReference oneShot)

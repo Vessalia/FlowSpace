@@ -4,25 +4,29 @@ using UnityEngine;
 
 public class Clock : Singleton<Clock>
 {
-	private Dictionary<string, AudioClock> tracks = new();
+	private Dictionary<int, AudioClock> clocks = new();
 
 	public float GameDeltaTime => Time.deltaTime;
 
-	// this should probably return a handle instead of taking a string for the id
-	public void RegisterTrack(string id, ChannelGroup group, int sampleRate) => tracks[id] = new AudioClock(group, sampleRate);
-	public void DeregisterTrack(string id)
+	public AudioClock RegisterClock(int handle, AudioClock clock)
 	{
-		if (tracks.ContainsKey(id))
+		clocks[handle] = clock;
+		return clocks[handle];
+	}
+
+	public void DeregisterClock(int handle)
+	{
+		if (clocks.ContainsKey(handle))
 		{
-			tracks.Remove(id);
+			clocks.Remove(handle);
 		}
 	}
 	
-	public AudioClock GetAudioClock(string id) => tracks[id];
+	public AudioClock GetAudioClock(int handle) => clocks[handle];
 
 	public void TickAll()
 	{
-		foreach (var clock in tracks.Values)
+		foreach (var clock in clocks.Values)
 		{
 			clock.Tick();
 		}

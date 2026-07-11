@@ -22,6 +22,9 @@ public class Metronome
 
 	private EVENT_CALLBACK eventCallback;
 
+	public event Action<int, float> OnBeat;
+	public event Action<string> OnMarker;
+
 	public Metronome(EventInstance audioInstance)
 	{
 		eventCallback = new EVENT_CALLBACK(EventCallback);
@@ -39,15 +42,15 @@ public class Metronome
 	}
 
 	// if this is where we want to handle this, we shouldn't do it repeatedly, and just store the actions
-	public void HandleFlags(Action onBeat, Action onMarker)
+	public void HandleFlags()
 	{
 		if (timelineInfo.beatDirty)
 		{
-			onBeat?.Invoke();
+			OnBeat?.Invoke(timelineInfo.currentBeat, timelineInfo.tempo);
 		}
 		if (timelineInfo.markerDirty)
 		{
-			onMarker?.Invoke();
+			OnMarker?.Invoke(timelineInfo.lastMarker);
 		}
 
 		timelineInfo.beatDirty = false;
