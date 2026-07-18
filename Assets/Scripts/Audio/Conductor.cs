@@ -49,9 +49,9 @@ public class Conductor : MonoSingleton<Conductor>
 	{
 		// we need n s.t. offset + n * period is as close to currBeat as possible
 		AudioClock musicClock = Clock.Instance.MusicClock;
-		float n = Mathf.Round((musicClock.BeatPos - signature.offset) / signature.period);
-		float nearestGridTimeMS = (signature.offset + n * signature.period) * musicClock.MSPerBeat;
-		return Mathf.Abs(musicClock.PosMS - nearestGridTimeMS) <= windowInMS;
+		float n = Mathf.Round((musicClock.BeatPos - signature.Offset) / signature.Period);
+		float nearestBeatTimeMS = (signature.Offset + n * signature.Period) * musicClock.MSPerBeat;
+		return Mathf.Abs(musicClock.PosMS - nearestBeatTimeMS) <= windowInMS;
 	}
 
 	public void RegisterBeatListener(Action<float> beatAction, BeatSignature signature)

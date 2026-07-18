@@ -10,9 +10,9 @@ namespace Assets.Scripts.Player
 	{
 		[Header("Dash Parameters")]
 
-		[Range(1f, 100f)]
-		public float dashDistance = 10f; // distance traveled until end of dash
-		public float dashDuration = 0.2f;
+		[SerializeField] private RhythmAction dash;
+		[Min(0f)] public float dashDistance = 10f; // distance traveled until end of dash
+		[Min(0f)] public float dashDuration = 0.2f;
 
 		public float InitialDashVelocity => (2.0f * dashDistance) / dashDuration; // constant decceleration
 
@@ -39,9 +39,8 @@ namespace Assets.Scripts.Player
 			// ship movement
 			Vector2 moveInput = intent.Move;
 
-			if (!isDashing && intent.Dash)
+			if (!isDashing && intent.Dash && dash.InWindow)
 			{
-				isDashing = true;
 				StartDash(moveInput);
 			}
 
@@ -69,8 +68,9 @@ namespace Assets.Scripts.Player
 			player.position = clampedBack + cam.transform.forward * boundsBox.size.z / 2;
 		}
 
-		private void StartDash(Vector2 dir)
+		public void StartDash(Vector2 dir)
 		{
+			isDashing = true;
 			if (MathUtils.ApproxZero(dir.sqrMagnitude)) return;
 
 			dashTimer = dashDuration;

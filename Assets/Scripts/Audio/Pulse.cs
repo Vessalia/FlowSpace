@@ -55,11 +55,12 @@ class Pulse
 		}
 	}
 
+	// as more beatlisteners build up, this will eventually desync since we calc BeatPos once per frame
 	private bool IsBeatActive(BeatSignature signature, out float beatDelay)
 	{
 		// get smallest n s.t. offset + n * period > prev → n > (prev - offset) / period
-		float n = Mathf.Floor((clock.LastBeatPos - signature.offset) / signature.period) + 1;
-		beatDelay = clock.BeatPos - (signature.offset + n * signature.period);
+		float n = Mathf.Floor((clock.LastBeatPos - signature.Offset) / signature.Period) + 1;
+		beatDelay = clock.BeatPos - (signature.Offset + n * signature.Period);
 		return beatDelay >= 0;
 	}
 

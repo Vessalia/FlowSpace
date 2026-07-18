@@ -1,12 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using UnityEngine;
 
 [Serializable]
 public struct BeatSignature
 {
-	public readonly float period;
-	public readonly float offset;
+	[SerializeField] private float period;
+	[SerializeField] private float offset;
+
+	public float Period => period;
+	public float Offset => offset;
 
 	public BeatSignature(float period = 1, float offset = 0)
 	{

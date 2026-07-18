@@ -1,30 +1,52 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
 
 [CreateAssetMenu(fileName = "NewRhythmAction", menuName = "FlowSpace/Rhythm Action", order = 0)]
-abstract class RhythmAction : ScriptableObject
+public class RhythmAction : ScriptableObject
 {
-	[SerializeField] private BeatSignature signature;
-	[SerializeField] private int windowInMS;
-	[SerializeField] private List<UnityEvent> actions;
+	[Tooltip("Beat period and offset this action checks against")]
+	[SerializeField] private BeatSignature signature = new BeatSignature(1, 0);
 
-	public bool Invoke()
+	[Tooltip("Timing window around this actions beats, in MS")]
+	[SerializeField] private int windowInMS = 40;
+
+	[Tooltip("Configurable side-effects")]
+	[SerializeField] private UnityEvent unityEvent;
+
+	/// <summary>Code-level subscriptions for methods to call on certain Invocation methods. Make sure you unsubscribe when destroying!</summary>
+	public event Action OnTriggered;
+
+	/// <summary>True if the current time falls within one of this action's beat windows</summary>
+	public bool InWindow => Conductor.Instance.InWindow(signature, windowInMS);
+
+	/// <summary>Fires the Unity Event, and then the Action</summary>
+	public void Invoke()
 	{
-		if (!InWindow()) return false;
-
-		foreach (var action in actions)
-		{
-			action.Invoke();
-		}
-
-		return true;
+		if (!InWindow) return;
+		unityEvent?.Invoke();
+		OnTriggered?.Invoke();
 	}
 
-	private bool InWindow()
+	/// <summary>Fires the Action, and then the Unity Event</summary>
+	public void Evoke()
 	{
-		return Conductor.Instance.InWindow(signature, windowInMS);
+		if (!InWindow) return;
+		OnTriggered?.Invoke();
+		unityEvent?.Invoke();
+	}
+
+	/// <summary>Fires only the Unity Event</summary>
+	public void Event()
+	{
+		if (!InWindow) return;
+		unityEvent?.Invoke();
+	}
+
+	/// <summary>Fires only the Action</summary>
+	public void Trigger()
+	{
+		if (!InWindow) return;
+		OnTriggered?.Invoke();
 	}
 }
