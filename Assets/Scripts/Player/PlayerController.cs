@@ -1,12 +1,12 @@
-﻿using Mono.Cecil.Cil;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements.Experimental;
 
 namespace Assets.Scripts.Player
 {
 	public class PlayerController : MonoBehaviour
 	{
 		private PlayerIntent intent;
+
 		[SerializeField] public PlayerMovementMotor moveMotor;
 		[SerializeField] public PlayerAimMotor      aimMotor;
 		[SerializeField] public PlayerAttackMotor   attackMotor;
@@ -14,6 +14,7 @@ namespace Assets.Scripts.Player
 		void Awake()
 		{
 			intent = new();
+			attackMotor.Init();
 		}
 
 		void Update()

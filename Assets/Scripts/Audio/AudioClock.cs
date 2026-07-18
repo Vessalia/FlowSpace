@@ -58,8 +58,7 @@ public class AudioClock
 		}
 		else
 		{
-			group.getDSPClock(out var dspclock, out _);
-			anchorDsp = dspclock;
+			anchorDsp = currPos.sample;
 		}
 
 		anchorBeat = beat;

@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: b43410c9e7ebf9348839100b8f4809a4
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - shoot: {instanceID: 0}
+  - misslePrefab: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
