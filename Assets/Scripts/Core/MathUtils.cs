@@ -2,6 +2,23 @@ using UnityEngine;
 
 public static class MathUtils
 {
+	public static Vector2 Lerp(Vector2 a, Vector2 b, float t)
+	{
+		float x = Mathf.Lerp(a.x, b.x, t);
+		float y = Mathf.Lerp(a.y, b.y, t);
+
+		return new Vector2(x, y);
+	}
+
+	public static Vector3 Lerp(Vector3 a, Vector3 b, float t)
+	{
+		float x = Mathf.Lerp(a.x, b.x, t);
+		float y = Mathf.Lerp(a.y, b.y, t);
+		float z = Mathf.Lerp(a.z, b.z, t);
+
+		return new Vector3(x, y, z);
+	}
+
 	// Freya Holmer: https://www.youtube.com/watch?v=LSNQuFEDOyQ at the 50min mark
 	public static float ExpDecay(float a, float b, float decay, float dt)
 	{

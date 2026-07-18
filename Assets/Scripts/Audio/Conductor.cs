@@ -1,13 +1,15 @@
 using FMOD;
 using FMODUnity;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.Rendering.VirtualTexturing.Debugging;
 
 public class Conductor : MonoSingleton<Conductor>
 {
 	[SerializeField] EventReference music;
-	private Pulse pulse;
+
+	private Pulse pulse = new();
 
 	void Start()
 	{
@@ -18,6 +20,7 @@ public class Conductor : MonoSingleton<Conductor>
 	private void OnDestroy()
 	{
 		Clock.Instance.DeregisterClock(MusicPlayer.Instance.MusicHandle);
+		MusicPlayer.Instance.ClearAudio();
 	}
 
 	private IEnumerator AwaitChannelGroup(int handle)
@@ -38,14 +41,29 @@ public class Conductor : MonoSingleton<Conductor>
 			clock.OnTick += metronome.HandleFlags;
 			metronome.OnBeat += (int beat, float tempo) => { clock.NotifyBeat(beat, tempo); };
 
-			pulse = new Pulse(clock, metronome);
-
 			Clock.Instance.RegisterClock(handle, clock);
 		}
 	}
 
-	// The timing of this is really sensitive, needs to be before anything that cares about audio clock deltatimes
-	// Maybe just have this script run earlier?
+	public bool InWindow(BeatSignature signature, int windowInMS)
+	{
+		// we need n s.t. offset + n * period is as close to currBeat as possible
+		AudioClock musicClock = Clock.Instance.MusicClock;
+		float n = Mathf.Round((musicClock.BeatPos - signature.offset) / signature.period);
+		float nearestGridTimeMS = (signature.offset + n * signature.period) * musicClock.MSPerBeat;
+		return Mathf.Abs(musicClock.PosMS - nearestGridTimeMS) <= windowInMS;
+	}
+
+	public void RegisterBeatListener(Action<float> beatAction, BeatSignature signature)
+	{
+		pulse.RegisterBeatListener(beatAction, signature);
+	}
+
+	public void DeregisterBeatListener(Action<float> beatAction, BeatSignature signature)
+	{
+		pulse.DeregisterBeatListener(beatAction, signature);
+	}
+
 	void Update()
 	{
 		Clock.Instance.TickAll();

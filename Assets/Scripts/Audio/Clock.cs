@@ -6,7 +6,36 @@ public class Clock : Singleton<Clock>
 {
 	private Dictionary<int, AudioClock> clocks = new();
 
+	public float GameTime => Time.time;
 	public float GameDeltaTime => Time.deltaTime;
+	public float MusicTime
+	{
+		get
+		{
+			if (clocks.TryGetValue(MusicPlayer.Instance.MusicHandle, out var musicClock))
+			{
+				return musicClock.PosS;
+			}
+
+			return 0;
+		}
+	}
+	public float MusicDeltaTime 
+	{
+		get
+		{
+			if (clocks.TryGetValue(MusicPlayer.Instance.MusicHandle, out var musicClock))
+			{
+				return musicClock.DeltaTime;
+			}
+
+			return 0;
+		}
+	}
+
+	public AudioClock MusicClock => GetAudioClock(MusicPlayer.Instance.MusicHandle);
+
+	private Clock() { }
 
 	public AudioClock RegisterClock(int handle, AudioClock clock)
 	{
@@ -16,10 +45,7 @@ public class Clock : Singleton<Clock>
 
 	public void DeregisterClock(int handle)
 	{
-		if (clocks.ContainsKey(handle))
-		{
-			clocks.Remove(handle);
-		}
+		clocks.Remove(handle);
 	}
 	
 	public AudioClock GetAudioClock(int handle) => clocks[handle];

@@ -365,8 +365,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4963871362027833736}
-  - component: {fileID: 3207251672381912567}
   - component: {fileID: 6922650994752818405}
+  - component: {fileID: 9070837336256577333}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -390,8 +390,34 @@ Transform:
   - {fileID: 6495788842621327884}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!143 &3207251672381912567
-CharacterController:
+--- !u!114 &6922650994752818405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6068769455038449800}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0521e3eecc0214046a3ca064f6023a09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Assets.Scripts.Player.PlayerController
+  moveMotor:
+    dashDistance: 10
+    dashDuration: 0.2
+    FlightSpeed: 6
+    ReticleSpeed: 10
+    timeToMaxSpeed: 0.1
+    cam: {fileID: 0}
+    boundsBox: {fileID: 9070837336256577333}
+    player: {fileID: 4963871362027833736}
+  aimMotor:
+    ReticleSpeed: 10
+    reticle: {fileID: 0}
+    reticleBounds: {fileID: 0}
+    canvas: {fileID: 0}
+--- !u!65 &9070837336256577333
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -405,37 +431,12 @@ CharacterController:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
-  m_Height: 2
-  m_Radius: 0.5
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.001
+  m_Size: {x: 4.6, y: 1, z: 4}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &6922650994752818405
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6068769455038449800}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0521e3eecc0214046a3ca064f6023a09, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Assets.Scripts.Player.PlayerController
-  animator: {fileID: 1691568662968971351}
-  cc: {fileID: 3207251672381912567}
-  motor:
-    dashDistance: 10
-    dashDuration: 0.2
-    FlightSpeed: 6
-    ReticleSpeed: 10
-    timeToMaxSpeed: 0.1
-  trackPivot: {fileID: 0}
 --- !u!1 &6417993472511650711
 GameObject:
   m_ObjectHideFlags: 0

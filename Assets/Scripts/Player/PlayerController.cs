@@ -6,10 +6,10 @@ namespace Assets.Scripts.Player
 {
 	public class PlayerController : MonoBehaviour
 	{
-		[SerializeField] private Animator animator;
-
 		private PlayerIntent intent;
-		[SerializeField] public PlayerMotor motor;
+		[SerializeField] public PlayerMovementMotor moveMotor;
+		[SerializeField] public PlayerAimMotor      aimMotor;
+		[SerializeField] public PlayerAttackMotor   attackMotor;
 
 		void Awake()
 		{
@@ -18,7 +18,9 @@ namespace Assets.Scripts.Player
 
 		void Update()
 		{
-			motor.Tick(Time.deltaTime, intent, animator);
+			moveMotor.Tick(Clock.Instance.GameDeltaTime, intent);
+			aimMotor.Tick(Clock.Instance.GameDeltaTime, intent);
+			attackMotor.Tick(Clock.Instance.GameDeltaTime, intent);
 		}
 
 		private void LateUpdate()

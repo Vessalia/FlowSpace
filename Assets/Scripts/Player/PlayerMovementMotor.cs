@@ -6,7 +6,7 @@ using static UnityEditor.PlayerSettings;
 namespace Assets.Scripts.Player
 {
 	[Serializable]
-	public class PlayerMotor
+	public class PlayerMovementMotor
 	{
 		[Header("Dash Parameters")]
 
@@ -31,13 +31,10 @@ namespace Assets.Scripts.Player
 		[SerializeField] private Camera cam;
 		[SerializeField] private BoxCollider boundsBox;
 		[SerializeField] private Transform player;
-		[SerializeField] private RectTransform reticle;
-		[SerializeField] private RectTransform reticleBounds;
-		[SerializeField] private RectTransform canvas;
 
 		private Vector2 planeVelocity;
 
-		public void Tick(float dt, PlayerIntent intent, Animator animator)
+		public void Tick(float dt, PlayerIntent intent)
 		{
 			// ship movement
 			Vector2 moveInput = intent.Move;
@@ -51,20 +48,9 @@ namespace Assets.Scripts.Player
 			planeVelocity = ResolveMovement(dt, moveInput);
 			ResolveRotation(moveInput);
 
-			UpdateAnimator(animator, intent);
 			player.localPosition += new Vector3(planeVelocity.x, planeVelocity.y, 0) * dt;
 
 			ConstrainToViewport();
-
-			// reticle movement
-			Vector2 pos = reticle.anchoredPosition + intent.Look;
-
-			Vector2 max = canvas.rect.size - reticleBounds.rect.size / 2;
-			Vector2 min = reticleBounds.rect.size / 2;
-			pos.x = Mathf.Clamp(pos.x, min.x, max.x);
-			pos.y = Mathf.Clamp(pos.y, min.y, max.y);
-
-			reticle.anchoredPosition = pos;
 		}
 
 		private void ConstrainToViewport()
@@ -140,11 +126,6 @@ namespace Assets.Scripts.Player
 		private void ResolveRotation(Vector3 moveDir)
 		{
 			// should handle banking here
-		}
-
-		private void UpdateAnimator(Animator animator, PlayerIntent intent)
-		{
-			animator.SetFloat("Speed", planeVelocity.magnitude);
 		}
 	}
 }

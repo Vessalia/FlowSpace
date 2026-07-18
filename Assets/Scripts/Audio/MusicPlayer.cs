@@ -8,8 +8,8 @@ using UnityEngine;
 
 public class MusicPlayer : Singleton<MusicPlayer>
 {
-	private Dictionary<int, EventInstance> audioInstances;
-	private int nextHandle = 0;
+	private Dictionary<int, EventInstance> audioInstances = new();
+	private static int nextHandle = 0;
 
 	public int MusicHandle { get; private set; } = -1;
 
@@ -41,8 +41,9 @@ public class MusicPlayer : Singleton<MusicPlayer>
 
 	public int PlayMusic(EventReference musicEvent)
 	{
-		musicHandle = PlayAudio(musicEvent);
-		return musicHandle;
+		ClearAudio(MusicHandle);
+		MusicHandle = PlayAudio(musicEvent);
+		return MusicHandle;
 	}
 
 	public int PlayAudio(EventReference audioEvent)
@@ -57,16 +58,28 @@ public class MusicPlayer : Singleton<MusicPlayer>
 		return handle;
 	}
 
-	public void ClearAudio()
+	public void ClearAudio(int handle = -1)
 	{
-		foreach (var audioInstance in audioInstances.Values)
+		if (handle < 0)
 		{
-			if (audioInstance.isValid())
+			foreach (var audioInstance in audioInstances.Values)
 			{
-				audioInstance.setUserData(IntPtr.Zero);
-				audioInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
-				audioInstance.release();
+				ClearInstance(audioInstance);
 			}
+		}
+		else
+		{
+			ClearInstance(audioInstances[handle]);
+		}
+	}
+
+	private void ClearInstance(EventInstance audioInstance)
+	{
+		if (audioInstance.isValid())
+		{
+			audioInstance.setUserData(IntPtr.Zero);
+			audioInstance.stop(FMOD.Studio.STOP_MODE.IMMEDIATE);
+			audioInstance.release();
 		}
 	}
 
