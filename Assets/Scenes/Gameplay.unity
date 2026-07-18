@@ -384,8 +384,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cc9ce6f2136d96499edc86f273a25cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: FlowSpace::RythymReticle
-  period: 1
-  offset: 0
+  signature:
+    period: 1
+    offset: 0
   growthFactor: 1.2
   decay: 10
 --- !u!1001 &280174649

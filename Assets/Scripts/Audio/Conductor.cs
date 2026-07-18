@@ -41,6 +41,9 @@ public class Conductor : MonoSingleton<Conductor>
 			clock.OnTick += metronome.HandleFlags;
 			metronome.OnBeat += (int beat, float tempo) => { clock.NotifyBeat(beat, tempo); };
 
+			pulse.SetClock(clock);
+			pulse.SetMetronome(metronome);
+
 			Clock.Instance.RegisterClock(handle, clock);
 		}
 	}
