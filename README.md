@@ -3,7 +3,7 @@ A passion project meant to learn Unity and audio engineering via FMOD, as well a
 
 Inspired by games like Metal: Hellsinger, Hi-Fi Rush, and Rez Infinite.
 
-Designed as a rhythym based shmup. Elements to be built into the game include:
+Designed as a rhythm based shmup. Elements to be built into the game include:
 - Beat/sub-beat timing requirements for real-time based actions (Hi-fi Rush)
 - Satisfying reward mechanics like playing more of the track as the player plays well (Hellsinger)
 - On-rails gameplay in 3D with abstract/spacey style (Rez)
