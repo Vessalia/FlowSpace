@@ -2,14 +2,14 @@
 
 public abstract class RhythmWeapon : MonoBehaviour
 {
-	[SerializeField] private RhythmActionDefinition shootDef;
+	[SerializeField] private WeaponProfile profile;
 	private RhythmAction shoot;
 
-	// this might not be the best way to do this, maybe a weapon profile SO?
-	[SerializeField] protected float range = 50f;
-	[SerializeField] protected LayerMask hitMask;
+	protected float Range => profile.range;
+	protected float Damage => profile.damage;
+	protected LayerMask HitMask => profile.hitMask;
 
-	public virtual void Awake() => shoot = new RhythmAction(shootDef);
+	public virtual void Awake() => shoot = new RhythmAction(profile.def);
 	protected virtual void OnEnable() => shoot.OnTriggered += Fire;
 	protected virtual void OnDestroy() => shoot.OnTriggered -= Fire;
 

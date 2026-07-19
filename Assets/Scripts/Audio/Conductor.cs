@@ -35,7 +35,7 @@ public class Conductor : MonoSingleton<Conductor>
 		{
 			RuntimeManager.CoreSystem.getSoftwareFormat(out int sampleRate, out _, out _);
 
-			Metronome metronome = new Metronome(audio);
+			Metronome metronome = new Metronome(audio, MusicPlayer.Instance.MusicLength);
 			AudioClock clock = new AudioClock(group, sampleRate);
 
 			clock.OnTick += metronome.HandleFlags;

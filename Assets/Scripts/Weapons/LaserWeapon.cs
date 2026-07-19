@@ -21,11 +21,14 @@ public class LaserWeapon : RhythmWeapon
 		Vector3 origin = transform.position;
 		Vector3 dir = transform.forward;
 
-		Vector3 endPoint = origin + dir * range;
-		if (Physics.Raycast(origin, dir, out RaycastHit hit, range, hitMask))
+		Vector3 endPoint = origin + dir * Range;
+		if (Physics.Raycast(origin, dir, out RaycastHit hit, Range, HitMask))
 		{
 			endPoint = hit.point;
-			// probably need to put some IDamageable here from the hit.collider
+			if (hit.transform.gameObject.TryGetComponent(out IDamageable damageable))
+			{
+				damageable.TakeDamage(Damage);
+			}
 		}
 
 		laserVisual.SetPosition(0, origin);
@@ -38,7 +41,7 @@ public class LaserWeapon : RhythmWeapon
 
 	public void PlayOneShot()
 	{
-		MusicPlayer.Instance.PlayOneShot(shootSound);
+		MusicPlayer.Instance.PlayOneShot(shootSound, transform.position);
 	}
 
 	private IEnumerator HideLaser()

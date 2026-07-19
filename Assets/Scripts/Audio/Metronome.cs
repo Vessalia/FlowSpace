@@ -10,7 +10,10 @@ public class Metronome
 	public class TimelineInfo
 	{
 		public float tempo = 0;
-		public int currentBeat = 0;
+		public int beat = 0;
+		public int position = 0;
+		public int bar = 0;
+		public int length = 0;
 		public FMOD.StringWrapper lastMarker = new();
 
 		public bool beatDirty = false;
@@ -25,12 +28,14 @@ public class Metronome
 	public event Action<int, float> OnBeat;
 	public event Action<string> OnMarker;
 
-	public Metronome(EventInstance audioInstance)
+	public Metronome(EventInstance audioInstance, int audioLength)
 	{
 		eventCallback = new EVENT_CALLBACK(EventCallback);
 
 		timelineInfo = new TimelineInfo();
 		timelineHandle = GCHandle.Alloc(timelineInfo, GCHandleType.Pinned);
+
+		timelineInfo.length = audioLength;
 
 		audioInstance.setUserData(GCHandle.ToIntPtr(timelineHandle));
 		audioInstance.setCallback(eventCallback, EVENT_CALLBACK_TYPE.TIMELINE_BEAT | EVENT_CALLBACK_TYPE.TIMELINE_MARKER);
@@ -46,7 +51,7 @@ public class Metronome
 	{
 		if (timelineInfo.beatDirty)
 		{
-			OnBeat?.Invoke(timelineInfo.currentBeat, timelineInfo.tempo);
+			OnBeat?.Invoke(timelineInfo.beat, timelineInfo.tempo);
 		}
 		if (timelineInfo.markerDirty)
 		{
@@ -79,8 +84,10 @@ public class Metronome
 				case EVENT_CALLBACK_TYPE.TIMELINE_BEAT:
 					{
 						var parameter = (TIMELINE_BEAT_PROPERTIES)Marshal.PtrToStructure(parameterPtr, typeof(FMOD.Studio.TIMELINE_BEAT_PROPERTIES));
-						timelineInfo.currentBeat = parameter.beat;
+						timelineInfo.beat = parameter.beat;
 						timelineInfo.tempo = parameter.tempo;
+						timelineInfo.position = parameter.position;
+						timelineInfo.bar = parameter.bar;
 						timelineInfo.beatDirty = true;
 						break;
 					}
@@ -96,4 +103,18 @@ public class Metronome
 
 		return FMOD.RESULT.OK;
 	}
+
+#if UNITY_EDITOR
+	void OnGUI()
+	{
+		var content = "";
+		content += $"**Music Manager Debug**\n\n";
+		content += $"Length (ms): {timelineInfo.length}, Tempo: {timelineInfo.tempo}\n\n";
+		content += $"Playback Position (ms): {timelineInfo.position}\n";
+		content += $"Current Bar: {timelineInfo.bar}, Current Beat: {timelineInfo.beat}\n\n";
+		content += $"Last Marker: {timelineInfo.lastMarker}";
+
+		GUI.Label(new Rect(10, 10, 300, 150), content, GUI.skin.textArea);
+	}
+#endif
 }

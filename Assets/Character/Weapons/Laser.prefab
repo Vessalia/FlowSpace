@@ -45,11 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfb38453b3cb464893432e753514f69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: FlowSpace::LaserWeapon
-  shootDef: {fileID: 11400000, guid: 3cf9c9fa1b3a4f4409b37937e7fe087f, type: 2}
-  range: 50
-  hitMask:
-    serializedVersion: 2
-    m_Bits: 1
+  profile: {fileID: 11400000, guid: d9b70b23d26496a4484d2f64a5e28fb8, type: 2}
   laserVisual: {fileID: 6794693773578777956}
   shootSound:
     Guid:

@@ -44,9 +44,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b43410c9e7ebf9348839100b8f4809a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: FlowSpace::MissleWeapon
-  shootDef: {fileID: 11400000, guid: 396dbc614668f084b8929b63a0b62189, type: 2}
-  range: 50
-  hitMask:
-    serializedVersion: 2
-    m_Bits: 1
+  profile: {fileID: 11400000, guid: f13008641797b304cae38fae07aa5188, type: 2}
   misslePrefab: {fileID: 5876101510669776055, guid: f0f329289f08c12428a7a26e31cb4f18, type: 3}

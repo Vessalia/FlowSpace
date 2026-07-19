@@ -12,6 +12,7 @@ public class MusicPlayer : Singleton<MusicPlayer>
 	private static int nextHandle = 0;
 
 	public int MusicHandle { get; private set; } = -1;
+	public int MusicLength { get; private set; } = 0;
 
 	MusicPlayer()
 	{
@@ -42,14 +43,17 @@ public class MusicPlayer : Singleton<MusicPlayer>
 	public int PlayMusic(EventReference musicEvent)
 	{
 		ClearAudio(MusicHandle);
-		MusicHandle = PlayAudio(musicEvent);
+		MusicHandle = PlayAudio(musicEvent, out int length);
+		MusicLength = length;
 		return MusicHandle;
 	}
 
-	public int PlayAudio(EventReference audioEvent)
+	public int PlayAudio(EventReference audioEvent, out int length)
 	{
 		var audioDescription = RuntimeManager.GetEventDescription(audioEvent);
 		audioDescription.createInstance(out EventInstance audioInstance);
+
+		audioDescription.getLength(out length);
 
 		audioInstance.start();
 
@@ -124,8 +128,8 @@ public class MusicPlayer : Singleton<MusicPlayer>
 		return audioInstances[handle].getChannelGroup(out channelGroup);
 	}
 
-	public void PlayOneShot(EventReference oneShot)
+	public void PlayOneShot(EventReference oneShot, Vector3 at = default)
 	{
-		RuntimeManager.PlayOneShot(oneShot);
+		RuntimeManager.PlayOneShot(oneShot, at);
 	}
 }
