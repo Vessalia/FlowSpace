@@ -31,8 +31,9 @@ namespace Assets.Scripts.Player
 		{
 			if (weapons.Count == 0) return;
 
-			if (intent.AttackJustPressed)
-				selectedWeapon.shoot.Invoke();
+			var attackIntent = intent.AttackJustPressed;
+			if (attackIntent.value)
+				selectedWeapon.TryShoot(attackIntent.time);
 		}
 	}
 }

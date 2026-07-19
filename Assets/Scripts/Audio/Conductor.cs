@@ -48,13 +48,13 @@ public class Conductor : MonoSingleton<Conductor>
 		}
 	}
 
-	public bool InWindow(BeatSignature signature, int windowInMS)
+	public bool InWindow(BeatSignature signature, int windowInMS, float requestTime)
 	{
 		// we need n s.t. offset + n * period is as close to currBeat as possible
 		AudioClock musicClock = Clock.Instance.MusicClock;
-		float n = Mathf.Round((musicClock.BeatPos - signature.Offset) / signature.Period);
+		float n = Mathf.Round((musicClock.SecondsToBeats(requestTime) - signature.Offset) / signature.Period);
 		float nearestBeatTimeMS = (signature.Offset + n * signature.Period) * musicClock.MSPerBeat;
-		return Mathf.Abs(musicClock.PosMS - nearestBeatTimeMS) <= windowInMS;
+		return Mathf.Abs((requestTime * 1000) - nearestBeatTimeMS) <= windowInMS;
 	}
 
 	public void RegisterBeatListener(Action<float> beatAction, BeatSignature signature)

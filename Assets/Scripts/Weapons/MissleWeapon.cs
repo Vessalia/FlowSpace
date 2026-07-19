@@ -4,7 +4,7 @@ public class MissleWeapon : RhythmWeapon
 {
 	[SerializeField] GameObject misslePrefab;
 
-	public override void Fire()
+	protected override void Fire()
 	{
 		throw new System.NotImplementedException();
 	}

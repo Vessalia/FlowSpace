@@ -38,6 +38,8 @@ public class AudioClock
 	public float SecondsPerBeat => 60.0f / bpm;
 	public float MSPerBeat => 1000 * SecondsPerBeat;
 
+	public float SecondsToBeats(float time) => time * bpm / 60f;
+
 
 	public event Action OnTick;
 

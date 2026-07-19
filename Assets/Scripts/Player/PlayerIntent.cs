@@ -5,14 +5,26 @@ namespace Assets.Scripts.Player
 {
 	public class PlayerIntent : IDisposable
 	{
-		public Vector2 Move { get; private set; }
-		public Vector2 Look { get; private set; }
+		public class TimedAction<T>
+		{
+			public T value;
+			public float time;
 
-		public bool Dash { get; private set; }
+			public void Set(T value)
+			{
+				this.value = value;
+				time = Clock.Instance.MusicTime;
+			}
+		};
 
-		public bool AttackHeld { get; private set; }
-		public bool AttackJustPressed { get; private set; }
-		public bool AttackJustReleased { get; private set; }
+		public TimedAction<Vector2> Move { get; private set; } = new();
+		public TimedAction<Vector2> Look { get; private set; } = new();
+
+		public TimedAction<bool> Dash { get; private set; } = new();
+
+		public TimedAction<bool> AttackHeld { get; private set; } = new();
+		public TimedAction<bool> AttackJustPressed { get; private set; } = new();
+		public TimedAction<bool> AttackJustReleased { get; private set; } = new();
 
 		public PlayerIntent()
 		{
@@ -38,25 +50,25 @@ namespace Assets.Scripts.Player
 
 		public void LateTick()
 		{
-			Dash = false;
-			AttackJustPressed = false;
-			AttackJustReleased = false;
+			Dash.Set(false);
+			AttackJustPressed.Set(false);
+			AttackJustReleased.Set(false);
 		}
 
-		private void OnMove(Vector2 move) => Move = move;
-		private void OnLook(Vector2 look) => Look = look;
+		private void OnMove(Vector2 move) => Move.Set(move);
+		private void OnLook(Vector2 look) => Look.Set(look);
 
-		private void OnDash() => Dash = true;
+		private void OnDash() => Dash.Set(true);
 
 		private void OnAttackStarted()
 		{
-			AttackHeld = true;
-			AttackJustPressed = true;
+			AttackHeld.Set(true);
+			AttackJustPressed.Set(true);
 		}
 		private void OnAttackCancelled()
 		{
-			AttackHeld = false;
-			AttackJustReleased = true;
+			AttackHeld.Set(false);
+			AttackJustReleased.Set(true);
 		}
 	}
 }

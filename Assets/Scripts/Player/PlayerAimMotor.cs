@@ -14,7 +14,7 @@ namespace Assets.Scripts.Player
 
 		public void Tick(float dt, PlayerIntent intent)
 		{
-			Vector2 pos = reticle.anchoredPosition + intent.Look;
+			Vector2 pos = reticle.anchoredPosition + intent.Look.value;
 
 			Vector2 max = canvas.rect.size - reticleBounds.rect.size / 2;
 			Vector2 min = reticleBounds.rect.size / 2;

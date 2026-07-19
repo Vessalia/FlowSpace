@@ -11,23 +11,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 103d73befea79ca4bb3453f744cd3a93, type: 3}
   m_Name: FireMissle
-  m_EditorClassIdentifier: FlowSpace::RhythmAction
+  m_EditorClassIdentifier: FlowSpace::RhythmActionDefinition
   signature:
     period: 1
     offset: 0
   windowInMS: 40
-  unityEvent:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1126485377759351986, guid: 64688afc6d8e09148a78d7ab6d11354c, type: 3}
-        m_TargetAssemblyTypeName: MissleWeapon, FlowSpace
-        m_MethodName: Fire
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2

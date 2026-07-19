@@ -6,13 +6,17 @@ public class LaserWeapon : RhythmWeapon
 {
 	[SerializeField] private LineRenderer laserVisual;
 	[SerializeField] private EventReference shootSound;
+	[SerializeField] private float liveTime = 0.1f;
 
-	public void Awake()
+	private float hideAt;
+
+	public override void Awake()
 	{
+		base.Awake();
 		laserVisual.enabled = false;
 	}
 
-	public override void Fire()
+	protected override void Fire()
 	{
 		Vector3 origin = transform.position;
 		Vector3 dir = transform.forward;
@@ -28,7 +32,8 @@ public class LaserWeapon : RhythmWeapon
 		laserVisual.SetPosition(1, endPoint);
 		laserVisual.enabled = true;
 
-		StartCoroutine(HideLaserAfter(0.1f));
+		hideAt = Clock.Instance.GameTime + liveTime;
+		StartCoroutine(HideLaser());
 	}
 
 	public void PlayOneShot()
@@ -36,9 +41,9 @@ public class LaserWeapon : RhythmWeapon
 		MusicPlayer.Instance.PlayOneShot(shootSound);
 	}
 
-	private IEnumerator HideLaserAfter(float time)
+	private IEnumerator HideLaser()
 	{
-		yield return new WaitForSeconds(time);
+		while (Clock.Instance.GameTime < hideAt) yield return new WaitForSeconds(liveTime);
 		laserVisual.enabled = false;
 	}
 }

@@ -10,7 +10,7 @@ namespace Assets.Scripts.Player
 	{
 		[Header("Dash Parameters")]
 
-		[SerializeField] private RhythmAction dash;
+		[SerializeField] private RhythmActionDefinition dash;
 		[Min(0f)] public float dashDistance = 10f; // distance traveled until end of dash
 		[Min(0f)] public float dashDuration = 0.2f;
 
@@ -37,11 +37,13 @@ namespace Assets.Scripts.Player
 		public void Tick(float dt, PlayerIntent intent)
 		{
 			// ship movement
-			Vector2 moveInput = intent.Move;
+			Vector2 moveInput = intent.Move.value;
+			var dashIntent = intent.Dash;
 
-			if (!isDashing && intent.Dash && dash.InWindow)
+			if (!isDashing && dashIntent.value)
 			{
-				StartDash(moveInput);
+				if (dash.InWindow(dashIntent.time)) 
+					StartDash(moveInput);
 			}
 
 			planeVelocity = ResolveMovement(dt, moveInput);
