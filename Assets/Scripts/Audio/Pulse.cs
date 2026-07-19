@@ -32,23 +32,24 @@ class Pulse
 
 	public void RegisterBeatListener(Action<float> listener, BeatSignature signature)
 	{
-		if (beatHandlers.TryGetValue(signature, out var handler))
+		if (beatHandlers.ContainsKey(signature))
 		{
-			handler += listener;
+			beatHandlers[signature] += listener;
 		}
 		else
 		{
-			beatHandlers.Add(signature, listener);
-			primed.Add(signature, true);
+			beatHandlers[signature] = listener;
+			primed[signature] = true;
 		}
 	}
 
 	public void DeregisterBeatListener(Action<float> listener, BeatSignature signature)
 	{
-		if (!beatHandlers.TryGetValue(signature, out var handler)) return;
+		if (!beatHandlers.ContainsKey(signature)) return;
 
-		handler -= listener;
-		if (handler == null)
+		beatHandlers[signature] -= listener;
+
+		if (beatHandlers[signature] == null)
 		{
 			beatHandlers.Remove(signature);
 			primed.Remove(signature);
