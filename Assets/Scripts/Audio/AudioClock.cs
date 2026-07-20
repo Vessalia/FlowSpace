@@ -19,10 +19,11 @@ public class AudioClock
 	};
 
 	private ChannelGroup group;
-	public int sampleRate = 44100;
-	public double anchorDsp = 0;
-	public int anchorBeat = 0;
-	public float bpm = 0;
+	private int sampleRate = 44100;
+	private ulong anchorDsp = 0;
+	private double dspRemainder = 0;
+	private int anchorBeat = 0;
+	private float bpm = 0;
 
 	private int loop = 0;
 	private int lastAbsoluteBeat = 0;
@@ -69,7 +70,12 @@ public class AudioClock
 		else if (bpm != this.bpm)
 		{
 			double samplesPerBeat = sampleRate * 60.0 / this.bpm;
-			anchorDsp += (trueBeat - anchorBeat) * samplesPerBeat;
+
+			double exactSample = anchorDsp + dspRemainder + (trueBeat - anchorBeat) * samplesPerBeat;
+			ulong roundedSample = (ulong)Math.Round(exactSample); // subsamples don't make sense in this context
+
+			dspRemainder = exactSample - roundedSample; // carries forward what rounding dropped
+			anchorDsp = roundedSample;
 			anchorBeat = trueBeat;
 			this.bpm = bpm;
 		}
