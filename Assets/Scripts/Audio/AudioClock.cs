@@ -56,7 +56,7 @@ public class AudioClock
 
 	public void NotifyBeat(int bar, int beat, int beatsPerBar, float bpm)
 	{
-		int absoluteBeat = beat + beatsPerBar * (bar - 1); // FMOD is 1 indexed
+		int absoluteBeat = beat - 1 + beatsPerBar * (bar - 1); // FMOD is 1 indexed
 		if (lastAbsoluteBeat > 0 && absoluteBeat < lastAbsoluteBeat) loop += lastAbsoluteBeat;
 		lastAbsoluteBeat = absoluteBeat;
 
