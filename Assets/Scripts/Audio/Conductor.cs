@@ -4,12 +4,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Metronome;
 
 public class Conductor : MonoSingleton<Conductor>
 {
 	[SerializeField] EventReference music;
 
 	private Pulse pulse = new();
+	private Metronome metronome;
 
 	void Start()
 	{
@@ -35,11 +37,14 @@ public class Conductor : MonoSingleton<Conductor>
 		{
 			RuntimeManager.CoreSystem.getSoftwareFormat(out int sampleRate, out _, out _);
 
-			Metronome metronome = new Metronome(audio, MusicPlayer.Instance.MusicLength);
+			metronome = new Metronome(audio, MusicPlayer.Instance.MusicLength);
 			AudioClock clock = new AudioClock(group, sampleRate);
 
 			clock.OnTick += metronome.HandleFlags;
-			metronome.OnBeat += (int beat, float tempo) => { clock.NotifyBeat(beat, tempo); };
+			metronome.OnBeat += (int bar, int beat, int beatsPerBar, float tempo) => 
+			{
+				clock.NotifyBeat(bar, beat, beatsPerBar, tempo); 
+			};
 
 			pulse.SetClock(clock);
 			pulse.SetMetronome(metronome);
@@ -71,4 +76,21 @@ public class Conductor : MonoSingleton<Conductor>
 	{
 		Clock.Instance.TickAll();
 	}
+
+#if UNITY_EDITOR
+	void OnGUI()
+	{
+		if (metronome != null)
+		{
+			var content = "";
+			content += $"**Music Manager Debug**\n\n";
+			content += $"Length (ms): {metronome.timelineInfo.length}, Tempo: {metronome.timelineInfo.tempo}\n\n";
+			content += $"Playback Position (ms): {metronome.timelineInfo.position}\n";
+			content += $"Current Bar: {metronome.timelineInfo.bar}, Current Beat: {metronome.timelineInfo.beat}\n\n";
+			content += $"Last Marker: {metronome.timelineInfo.lastMarker}";
+
+			GUI.Label(new Rect(10, 160, 300, 150), content, GUI.skin.textArea);
+		}
+	}
+#endif
 }

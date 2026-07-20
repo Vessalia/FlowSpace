@@ -24,6 +24,9 @@ public class AudioClock
 	public int anchorBeat = 0;
 	public float bpm = 0;
 
+	private int loop = 0;
+	private int lastAbsoluteBeat = 0;
+
 	private bool initialized = false;
 
 	private AudioPosition lastPos;
@@ -36,7 +39,7 @@ public class AudioClock
 	public float DeltaTime => currPos.PosS(sampleRate) - lastPos.PosS(sampleRate);
 
 	public float SecondsPerBeat => 60.0f / bpm;
-	public float MSPerBeat => 1000 * SecondsPerBeat;
+	public float MSPerBeat => 1000 * SecondsPerBeat; 
 
 	public float SecondsToBeats(float time) => time * bpm / 60f;
 
@@ -51,20 +54,25 @@ public class AudioClock
 		currPos.sample = 0;
 	}
 
-	public void NotifyBeat(int beat, float bpm)
+	public void NotifyBeat(int bar, int beat, int beatsPerBar, float bpm)
 	{
-		if (bpm > 0)
-		{
-			double prevSamplesPerBeat = sampleRate * 60.0 / bpm;
-			anchorDsp += (beat - anchorBeat) * prevSamplesPerBeat;
-		}
-		else
-		{
-			anchorDsp = currPos.sample;
-		}
+		int absoluteBeat = beat + beatsPerBar * (bar - 1); // FMOD is 1 indexed
+		if (lastAbsoluteBeat > 0 && absoluteBeat < lastAbsoluteBeat) loop += lastAbsoluteBeat;
+		lastAbsoluteBeat = absoluteBeat;
 
-		anchorBeat = beat;
-		this.bpm = bpm;
+		int trueBeat = absoluteBeat + loop;
+
+		if (this.bpm == 0)
+		{
+			this.bpm = bpm;
+		}
+		else if (bpm != this.bpm)
+		{
+			double samplesPerBeat = sampleRate * 60.0 / this.bpm;
+			anchorDsp += (trueBeat - anchorBeat) * samplesPerBeat;
+			anchorBeat = trueBeat;
+			this.bpm = bpm;
+		}
 	}
 
 	public void Tick()

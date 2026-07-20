@@ -9,15 +9,17 @@ public class Metronome
 	[StructLayout(LayoutKind.Sequential)]
 	public class TimelineInfo
 	{
-		public float tempo = 0;
-		public int beat = 0;
-		public int position = 0;
-		public int bar = 0;
-		public int length = 0;
-		public FMOD.StringWrapper lastMarker = new();
-
 		public bool beatDirty = false;
 		public bool markerDirty = false;
+
+		public int bar = 0;
+		public int beat = 0;
+		public int upperSignature = 0;
+		public int lowerSignature = 0;
+		public int position = 0;
+		public int length = 0;
+		public float tempo = 0;
+		public FMOD.StringWrapper lastMarker = new();
 	}
 
 	public TimelineInfo timelineInfo { get; private set; }
@@ -25,7 +27,7 @@ public class Metronome
 
 	private EVENT_CALLBACK eventCallback;
 
-	public event Action<int, float> OnBeat;
+	public event Action<int, int, int, float> OnBeat;
 	public event Action<string> OnMarker;
 
 	public Metronome(EventInstance audioInstance, int audioLength)
@@ -51,7 +53,7 @@ public class Metronome
 	{
 		if (timelineInfo.beatDirty)
 		{
-			OnBeat?.Invoke(timelineInfo.beat, timelineInfo.tempo);
+			OnBeat?.Invoke(timelineInfo.bar, timelineInfo.beat, timelineInfo.upperSignature, timelineInfo.tempo);
 		}
 		if (timelineInfo.markerDirty)
 		{
@@ -84,10 +86,12 @@ public class Metronome
 				case EVENT_CALLBACK_TYPE.TIMELINE_BEAT:
 					{
 						var parameter = (TIMELINE_BEAT_PROPERTIES)Marshal.PtrToStructure(parameterPtr, typeof(FMOD.Studio.TIMELINE_BEAT_PROPERTIES));
-						timelineInfo.beat = parameter.beat;
-						timelineInfo.tempo = parameter.tempo;
-						timelineInfo.position = parameter.position;
 						timelineInfo.bar = parameter.bar;
+						timelineInfo.beat = parameter.beat;
+						timelineInfo.upperSignature = parameter.timesignatureupper;
+						timelineInfo.lowerSignature = parameter.timesignaturelower;
+						timelineInfo.position = parameter.position;
+						timelineInfo.tempo = parameter.tempo;
 						timelineInfo.beatDirty = true;
 						break;
 					}
@@ -103,18 +107,4 @@ public class Metronome
 
 		return FMOD.RESULT.OK;
 	}
-
-#if UNITY_EDITOR
-	void OnGUI()
-	{
-		var content = "";
-		content += $"**Music Manager Debug**\n\n";
-		content += $"Length (ms): {timelineInfo.length}, Tempo: {timelineInfo.tempo}\n\n";
-		content += $"Playback Position (ms): {timelineInfo.position}\n";
-		content += $"Current Bar: {timelineInfo.bar}, Current Beat: {timelineInfo.beat}\n\n";
-		content += $"Last Marker: {timelineInfo.lastMarker}";
-
-		GUI.Label(new Rect(10, 10, 300, 150), content, GUI.skin.textArea);
-	}
-#endif
 }

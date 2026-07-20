@@ -6,7 +6,7 @@ public class LaserWeapon : RhythmWeapon
 {
 	[SerializeField] private LineRenderer laserVisual;
 	[SerializeField] private EventReference shootSound;
-	[SerializeField] private float liveTime = 0.1f;
+	[SerializeField] private float liveTime = 0.01f;
 
 	private float hideAt;
 
@@ -34,6 +34,8 @@ public class LaserWeapon : RhythmWeapon
 		laserVisual.SetPosition(0, origin);
 		laserVisual.SetPosition(1, endPoint);
 		laserVisual.enabled = true;
+
+		PlayOneShot();
 
 		hideAt = Clock.Instance.GameTime + liveTime;
 		StartCoroutine(HideLaser());
