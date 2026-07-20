@@ -2,9 +2,7 @@ using FMOD;
 using FMODUnity;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using static Metronome;
 
 public class Conductor : MonoSingleton<Conductor>
 {

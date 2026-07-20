@@ -2,7 +2,6 @@ using FMOD;
 using FMOD.Studio;
 using System;
 using System.Runtime.InteropServices;
-using UnityEngine;
 
 public class Metronome
 {
@@ -19,7 +18,8 @@ public class Metronome
 		public int position = 0;
 		public int length = 0;
 		public float tempo = 0;
-		public FMOD.StringWrapper lastMarker = new();
+
+		public StringWrapper lastMarker = new();
 	}
 
 	public TimelineInfo timelineInfo { get; private set; }
@@ -65,14 +65,14 @@ public class Metronome
 	}
 
 	[AOT.MonoPInvokeCallback(typeof(EVENT_CALLBACK))]
-	private static FMOD.RESULT EventCallback(EVENT_CALLBACK_TYPE type, IntPtr instancePtr, IntPtr parameterPtr)
+	private static RESULT EventCallback(EVENT_CALLBACK_TYPE type, IntPtr instancePtr, IntPtr parameterPtr)
 	{
 		EventInstance instance = new(instancePtr);
 
 		IntPtr timelineInfoPtr;
-		FMOD.RESULT result = instance.getUserData(out timelineInfoPtr);
+		RESULT result = instance.getUserData(out timelineInfoPtr);
 
-		if (result != FMOD.RESULT.OK)
+		if (result != RESULT.OK)
 		{
 			UnityEngine.Debug.LogError("Timeline Callback error: " + result);
 		}
@@ -84,27 +84,27 @@ public class Metronome
 			switch (type)
 			{
 				case EVENT_CALLBACK_TYPE.TIMELINE_BEAT:
-					{
-						var parameter = (TIMELINE_BEAT_PROPERTIES)Marshal.PtrToStructure(parameterPtr, typeof(FMOD.Studio.TIMELINE_BEAT_PROPERTIES));
-						timelineInfo.bar = parameter.bar;
-						timelineInfo.beat = parameter.beat;
-						timelineInfo.upperSignature = parameter.timesignatureupper;
-						timelineInfo.lowerSignature = parameter.timesignaturelower;
-						timelineInfo.position = parameter.position;
-						timelineInfo.tempo = parameter.tempo;
-						timelineInfo.beatDirty = true;
-						break;
-					}
+				{
+					var parameter = (TIMELINE_BEAT_PROPERTIES)Marshal.PtrToStructure(parameterPtr, typeof(FMOD.Studio.TIMELINE_BEAT_PROPERTIES));
+					timelineInfo.bar = parameter.bar;
+					timelineInfo.beat = parameter.beat;
+					timelineInfo.upperSignature = parameter.timesignatureupper;
+					timelineInfo.lowerSignature = parameter.timesignaturelower;
+					timelineInfo.position = parameter.position;
+					timelineInfo.tempo = parameter.tempo;
+					timelineInfo.beatDirty = true;
+					break;
+				}
 				case EVENT_CALLBACK_TYPE.TIMELINE_MARKER:
-					{
-						var parameter = (TIMELINE_MARKER_PROPERTIES)Marshal.PtrToStructure(parameterPtr, typeof(TIMELINE_MARKER_PROPERTIES));
-						timelineInfo.lastMarker = parameter.name;
-						timelineInfo.markerDirty = true;
-						break;
-					}
+				{
+					var parameter = (TIMELINE_MARKER_PROPERTIES)Marshal.PtrToStructure(parameterPtr, typeof(TIMELINE_MARKER_PROPERTIES));
+					timelineInfo.lastMarker = parameter.name;
+					timelineInfo.markerDirty = true;
+					break;
+				}
 			}
 		}
 
-		return FMOD.RESULT.OK;
+		return RESULT.OK;
 	}
 }
