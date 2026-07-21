@@ -31,6 +31,18 @@ public class Clock : Singleton<Clock>
 			return 0;
 		}
 	}
+	public float LiveMusicTime // if this is useful, this brings into question the whole AudioClock model
+	{
+		get
+		{
+			if (clocks.TryGetValue(MusicPlayer.Instance.MusicHandle, out var musicClock))
+			{
+				return musicClock.LiveTime;
+			}
+
+			return 0;
+		}
+	}
 
 	public AudioClock MusicClock => GetAudioClock(MusicPlayer.Instance.MusicHandle);
 

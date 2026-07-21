@@ -12,8 +12,7 @@ namespace Assets.Scripts.Player
 
 		private List<RhythmWeapon> weapons = new();
 		private RhythmWeapon selectedWeapon;
-
-		public void SelectWeapon(int index) => selectedWeapon = weapons[index];
+		private int selectedIndex = 0;
 
 		public void Init()
 		{
@@ -24,16 +23,32 @@ namespace Assets.Scripts.Player
 				weapons.Add(weapon);
 			}
 
-			if (weapons.Count > 0 && selectedWeapon == null) SelectWeapon(0);
+			if (weapons.Count > 0 && selectedWeapon == null)
+			{
+				selectedWeapon = weapons[selectedIndex];
+			}
 		}
 
 		public void Tick(float dt, PlayerIntent intent)
 		{
 			if (weapons.Count == 0) return;
 
+			if (intent.Next && !intent.Previous)
+			{
+				selectedIndex = (selectedIndex + 1) % weapons.Count;
+				selectedWeapon = weapons[selectedIndex];
+			}
+			else if (intent.Previous)
+			{
+				selectedIndex = (selectedIndex - 1 + weapons.Count) % weapons.Count;
+				selectedWeapon = weapons[selectedIndex];
+			}
+
 			var attackIntent = intent.AttackJustPressed;
 			if (attackIntent.value)
+			{
 				selectedWeapon.TryShoot(attackIntent.time);
+			}
 		}
 	}
 }

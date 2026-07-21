@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1467980943137910052
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2709729393905705903}
+  m_Layer: 0
+  m_Name: Mount Point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2709729393905705903
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1467980943137910052}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4963871362027833736}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4339640826461466517
 GameObject:
   m_ObjectHideFlags: 0
@@ -248,7 +279,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 5249
+  m_VersionIndex: 5273
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -387,6 +418,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 2709729393905705903}
   - {fileID: 6495788842621327884}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -403,6 +435,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Assets.Scripts.Player.PlayerController
   moveMotor:
+    dash: {fileID: 11400000, guid: 25c94e6c6e284544ea072b70807f2a0f, type: 2}
     dashDistance: 10
     dashDuration: 0.2
     FlightSpeed: 6
@@ -416,6 +449,11 @@ MonoBehaviour:
     reticle: {fileID: 0}
     reticleBounds: {fileID: 0}
     canvas: {fileID: 0}
+  attackMotor:
+    weaponPrefabs:
+    - {fileID: 943896916975211529, guid: 4bb53703211132d408c7c44990153f02, type: 3}
+    - {fileID: 2863678261202602440, guid: 64688afc6d8e09148a78d7ab6d11354c, type: 3}
+    weaponMountPoint: {fileID: 2709729393905705903}
 --- !u!65 &9070837336256577333
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -742,7 +780,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 2955
+  m_VersionIndex: 2979
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -1098,7 +1136,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 5249
+  m_VersionIndex: 5273
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []

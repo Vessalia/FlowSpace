@@ -35,12 +35,12 @@ namespace Assets.Scripts.Player
 		public void Tick(float dt, PlayerIntent intent)
 		{
 			// ship movement
-			Vector2 moveInput = intent.Move.value;
+			Vector2 moveInput = intent.Move;
 			var dashIntent = intent.Dash;
 
 			if (!isDashing && dashIntent.value)
 			{
-				if (dash.InWindow(dashIntent.time)) 
+				if (dash.InWindow(dashIntent.time))
 					StartDash(moveInput);
 			}
 

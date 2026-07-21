@@ -46,6 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FlowSpace::LaserWeapon
   profile: {fileID: 11400000, guid: d9b70b23d26496a4484d2f64a5e28fb8, type: 2}
+  def: {fileID: 11400000, guid: 549ae723937586c4785e9137e6d0351d, type: 2}
   laserVisual: {fileID: 6794693773578777956}
   shootSound:
     Guid:
@@ -54,7 +55,7 @@ MonoBehaviour:
       Data3: 1408961444
       Data4: 957083060
     Path: event:/Laser
-  liveTime: 0.1
+  liveTime: 0.01
 --- !u!120 &6794693773578777956
 LineRenderer:
   serializedVersion: 3

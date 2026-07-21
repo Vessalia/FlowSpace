@@ -42,6 +42,15 @@ public class AudioClock
 	public float SecondsPerBeat => 60.0f / bpm;
 	public float MSPerBeat => 1000 * SecondsPerBeat; 
 
+	public float LiveTime
+	{
+		get
+		{
+			group.getDSPClock(out ulong dspTime, out _);
+			return dspTime / ((float)sampleRate);
+		}
+	}
+
 	public float SecondsToBeats(float time) => time * bpm / 60f;
 
 
@@ -73,8 +82,8 @@ public class AudioClock
 
 			double exactSample = anchorDsp + dspRemainder + (trueBeat - anchorBeat) * samplesPerBeat;
 			ulong roundedSample = (ulong)Math.Round(exactSample); // subsamples don't make sense in this context
-
 			dspRemainder = exactSample - roundedSample; // carries forward what rounding dropped
+
 			anchorDsp = roundedSample;
 			anchorBeat = trueBeat;
 			this.bpm = bpm;

@@ -45,4 +45,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FlowSpace::MissleWeapon
   profile: {fileID: 11400000, guid: f13008641797b304cae38fae07aa5188, type: 2}
+  def: {fileID: 11400000, guid: fdec5c08e0b5f6040b4b46282365333f, type: 2}
   misslePrefab: {fileID: 5876101510669776055, guid: f0f329289f08c12428a7a26e31cb4f18, type: 3}

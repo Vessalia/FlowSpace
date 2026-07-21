@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: FlowSpace::WeaponProfile
   range: 50
   damage: 1
-  def: {fileID: 11400000, guid: 549ae723937586c4785e9137e6d0351d, type: 2}
   hitMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 384

@@ -13,15 +13,16 @@ namespace Assets.Scripts.Player
 			public void Set(T value)
 			{
 				this.value = value;
-				time = Clock.Instance.MusicTime;
+				time = Clock.Instance.LiveMusicTime;
 			}
 		};
 
-		public TimedAction<Vector2> Move { get; private set; } = new();
-		public TimedAction<Vector2> Look { get; private set; } = new();
+		public Vector2 Move { get; private set; }
+		public Vector2 Look { get; private set; }
+		public bool Next { get; private set;  }
+		public bool Previous { get; private set;  }
 
 		public TimedAction<bool> Dash { get; private set; } = new();
-
 		public TimedAction<bool> AttackHeld { get; private set; } = new();
 		public TimedAction<bool> AttackJustPressed { get; private set; } = new();
 		public TimedAction<bool> AttackJustReleased { get; private set; } = new();
@@ -29,8 +30,12 @@ namespace Assets.Scripts.Player
 		public PlayerIntent()
 		{
 			var _input = InputManager.Instance.GetPlayerInput();
+
 			_input.MoveEvent += OnMove;
 			_input.LookEvent += OnLook;
+			_input.NextEvent += OnNext;
+			_input.PreviousEvent += OnPrevious;
+
 			_input.DashEvent += OnDash;
 			_input.AttackStartedEvent += OnAttackStarted;
 			_input.AttackCancelledEvent += OnAttackCancelled;
@@ -41,8 +46,12 @@ namespace Assets.Scripts.Player
 		public void Dispose()
 		{
 			var _input = InputManager.Instance.GetPlayerInput();
+
 			_input.MoveEvent -= OnMove;
 			_input.LookEvent -= OnLook;
+			_input.NextEvent -= OnNext;
+			_input.PreviousEvent -= OnPrevious;
+
 			_input.DashEvent -= OnDash;
 			_input.AttackStartedEvent -= OnAttackStarted;
 			_input.AttackCancelledEvent -= OnAttackCancelled;
@@ -50,13 +59,18 @@ namespace Assets.Scripts.Player
 
 		public void LateTick()
 		{
+			Next = false;
+			Previous = false;
+
 			Dash.Set(false);
 			AttackJustPressed.Set(false);
 			AttackJustReleased.Set(false);
 		}
 
-		private void OnMove(Vector2 move) => Move.Set(move);
-		private void OnLook(Vector2 look) => Look.Set(look);
+		private void OnMove(Vector2 move) => Move = move;
+		private void OnLook(Vector2 look) => Look = look;
+		private void OnNext() => Next = true;
+		private void OnPrevious() => Previous = true;
 
 		private void OnDash() => Dash.Set(true);
 
